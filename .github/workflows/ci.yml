@@ -1,0 +1,76 @@
+# Build and test on every push. Makes no releases - that is release.yml, which runs on a tag.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  # a failed build should not also cost minutes compiling debug info
+  CARGO_PROFILE_RELEASE_DEBUG: '0'
+
+jobs:
+  translations:
+    name: Translations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Every string has a Polish translation
+        run: python scripts/i18n-check.py
+      - name: The committed .po matches the UI
+        run: |
+          python scripts/make-po.py
+          # make-po.py rewrites the file; if that changes anything, the commit is stale
+          git diff --exit-code lang/ || {
+            echo "::error::lang/pl/LC_MESSAGES/skj-files.po is out of date - run python scripts/make-po.py and commit it"
+            exit 1
+          }
+
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest,  name: Linux }
+          - { os: windows-latest, name: Windows }
+          - { os: macos-latest,   name: macOS }
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.os }}
+
+      # Slint needs these to build its winit/femtovg backend on Linux
+      - name: Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libxkbcommon-dev libwayland-dev libxcb1-dev libxcb-render0-dev \
+            libxcb-shape0-dev libxcb-xfixes0-dev libfontconfig1-dev
+
+      - name: Build
+        run: cargo build --release --locked
+
+      - name: Test
+        run: cargo test --release --locked
+
+      # Reported, not enforced: the code carries 18 clippy warnings today (none of them bugs -
+      # mostly chunks_exact with a constant size, needless returns, complex types). Turning on
+      # -D warnings before those are cleaned up would just make CI permanently red.
+      - name: Clippy (informational)
+        run: cargo clippy --release --locked

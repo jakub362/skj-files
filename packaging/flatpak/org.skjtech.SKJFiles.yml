@@ -1,0 +1,54 @@
+# Flatpak manifest for SKJ Files.
+#
+# This one packages an ALREADY BUILT binary (target/release/skj-files), because the release
+# workflow builds it on the Linux runner first. That keeps the Flatpak build quick and avoids
+# vendoring every crate for an offline cargo build.
+#
+# Flathub would need the other shape - building from source inside the sandbox, with all cargo
+# dependencies declared up front by flatpak-cargo-generator. That is a separate job for when the
+# app is actually submitted there.
+#
+#   flatpak-builder --force-clean --repo=repo build packaging/flatpak/org.skjtech.SKJFiles.yml
+#   flatpak build-bundle repo SKJ-Files.flatpak org.skjtech.SKJFiles
+
+app-id: org.skjtech.SKJFiles
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: skj-files
+
+finish-args:
+  # A file manager is only useful if it can see the files. --filesystem=host covers the whole
+  # home and mounted media; it is broad on purpose and is what every Flatpak file manager asks for.
+  - --filesystem=host
+  # removable drives and anything else mounted under /run/media
+  - --filesystem=/run/media
+  - --device=dri
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  # the update check talks to api.github.com; without this it simply stays quiet
+  - --share=network
+  # "Open in terminal" and "Open with..." hand off to the host's own apps
+  - --talk-name=org.freedesktop.Flatpak
+  # trash, mounting and the file manager D-Bus interfaces
+  - --talk-name=org.freedesktop.FileManager1
+  - --own-name=org.freedesktop.FileManager1
+
+modules:
+  - name: skj-files
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 skj-files /app/bin/skj-files
+      - install -Dm644 org.skjtech.SKJFiles.desktop /app/share/applications/org.skjtech.SKJFiles.desktop
+      - install -Dm644 org.skjtech.SKJFiles.metainfo.xml /app/share/metainfo/org.skjtech.SKJFiles.metainfo.xml
+      - install -Dm644 skj-files.png /app/share/icons/hicolor/512x512/apps/org.skjtech.SKJFiles.png
+    sources:
+      - type: file
+        path: ../../target/release/skj-files
+      - type: file
+        path: org.skjtech.SKJFiles.desktop
+      - type: file
+        path: org.skjtech.SKJFiles.metainfo.xml
+      - type: file
+        path: ../../assets/skj-files.png

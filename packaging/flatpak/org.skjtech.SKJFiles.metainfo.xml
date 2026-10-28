@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.skjtech.SKJFiles</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+
+  <name>SKJ Files</name>
+  <summary>Fast, good-looking file manager</summary>
+  <summary xml:lang="pl">Szybki, ładny menedżer plików</summary>
+
+  <developer id="online.skj-tech">
+    <name>SKJ Tech</name>
+  </developer>
+
+  <description>
+    <p>
+      SKJ Files is a file manager that starts almost instantly and stays out of your way.
+      It has tabs, a dual pane, a column view, a command palette, real thumbnails,
+      colour tags, batch rename, checksums and archive handling.
+    </p>
+    <p xml:lang="pl">
+      SKJ Files to menedżer plików, który uruchamia się niemal natychmiast i nie wchodzi w drogę.
+      Ma karty, dwa panele, widok kolumnowy, paletę poleceń, prawdziwe miniatury,
+      kolorowe etykiety, zmianę nazw wsadowo, sumy kontrolne i obsługę archiwów.
+    </p>
+    <p>Some of what it does:</p>
+    <ul>
+      <li>Tabs that come back when you reopen it, and a dual pane</li>
+      <li>Details and grid views with image, video and PDF thumbnails</li>
+      <li>Command palette, column view, customisable toolbar and shortcuts</li>
+      <li>Copy and move with conflict handling, progress, speed and time left</li>
+      <li>CRC32, MD5, SHA-1, SHA-256, SHA-512 and BLAKE3 checksums</li>
+      <li>ZIP and tar compression and extraction</li>
+      <li>English and Polish, switching instantly without a restart</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">org.skjtech.SKJFiles.desktop</launchable>
+  <url type="homepage">https://github.com/jakub362/skj-files</url>
+  <url type="bugtracker">https://github.com/jakub362/skj-files/issues</url>
+  <url type="vcs-browser">https://github.com/jakub362/skj-files</url>
+
+  <categories>
+    <category>System</category>
+    <category>Utility</category>
+    <category>FileTools</category>
+  </categories>
+
+  <content_rating type="oars-1.1"/>
+
+  <releases>
+    <release version="0.4.0" date="2026-10-28">
+      <description>
+        <p>
+          Command palette, column view, tab reordering, the Windows shell context menu,
+          network locations, custom shortcuts and toolbar, and a Polish translation.
+        </p>
+      </description>
+    </release>
+  </releases>
+</component>

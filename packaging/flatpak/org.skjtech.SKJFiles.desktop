@@ -1,0 +1,17 @@
+[Desktop Entry]
+Type=Application
+Name=SKJ Files
+Name[pl]=SKJ Files
+GenericName=File Manager
+GenericName[pl]=Menedżer plików
+Comment=Fast, good-looking file manager
+Comment[pl]=Szybki, ładny menedżer plików
+Exec=skj-files %U
+Icon=org.skjtech.SKJFiles
+Terminal=false
+Categories=System;FileTools;FileManager;Utility;
+Keywords=files;folder;manager;explorer;browser;
+Keywords[pl]=pliki;folder;menedżer;eksplorator;przeglądarka;
+MimeType=inode/directory;
+StartupNotify=true
+StartupWMClass=skj-files
