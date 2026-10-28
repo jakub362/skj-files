@@ -9,6 +9,7 @@ mod fsx;
 mod settings;
 mod sysint;
 mod thumbs;
+mod update;
 #[cfg(windows)]
 mod winshell;
 
@@ -19,6 +20,9 @@ use std::time::Instant;
 fn main() -> Result<(), slint::PlatformError> {
     let t0 = Instant::now();
     let timing = std::env::var("SKJ_TIMING").is_ok();
+
+    // lets the installer notice we are open rather than failing to overwrite a locked .exe
+    sysint::claim_running_marker();
 
     let s = settings::Settings::load();
     let ui = AppWindow::new()?;

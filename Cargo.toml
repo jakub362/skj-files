@@ -5,6 +5,10 @@ edition = "2021"
 description = "SKJ Files - a fast, good-looking file manager for Windows, Linux and macOS"
 authors = ["SKJ Tech"]
 license = "GPL-3.0-only"
+# THE place the project lives. Moving the repo (e.g. to the SKJ-Technology org) means changing
+# this line and the git remote - nothing else. The update check derives the GitHub API URL from
+# it, the installer takes its URLs from it, and CI uses ${{ github.repository }} by itself.
+repository = "https://github.com/jakub362/skj-files"
 build = "build.rs"
 
 [dependencies]
@@ -26,10 +30,11 @@ zip = { version = "9", default-features = false, features = ["deflate-flate2-zli
 tar = "0.4"
 flate2 = "1"
 sys-locale = "0.3"
+ureq = { version = "3.5.0", default-features = false, features = ["rustls", "gzip"] }
 
 [target.'cfg(windows)'.dependencies]
 clipboard-win = "5"
-windows = { version = "0.62", features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_System_Com", "Win32_System_Ole", "Win32_System_Registry", "Win32_Storage_FileSystem", "Win32_UI_Shell", "Win32_UI_Shell_Common", "Win32_UI_WindowsAndMessaging", "Win32_System_SystemServices"] }
+windows = { version = "0.62", features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_System_Com", "Win32_System_Ole", "Win32_System_Registry", "Win32_Storage_FileSystem", "Win32_UI_Shell", "Win32_UI_Shell_Common", "Win32_UI_WindowsAndMessaging", "Win32_System_SystemServices", "Win32_System_Threading"] }
 
 [build-dependencies]
 slint-build = "1.18"

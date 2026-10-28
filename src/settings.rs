@@ -39,6 +39,10 @@ pub struct Settings {
     pub lang: String,
     /// The file manager that was the default before SKJ Files took over (Linux)
     pub prev_fm: String,
+    /// Ask GitHub once a day whether a newer release is out
+    pub update_check: bool,
+    /// Release tag the user has already been told about, so it is only reported once
+    pub update_seen: String,
 }
 
 pub const DEFAULT_COL_W: [f32; 5] = [140.0, 140.0, 130.0, 76.0, 220.0];
@@ -73,6 +77,8 @@ impl Default for Settings {
             shortcuts: Vec::new(),
             lang: "auto".into(),
             prev_fm: String::new(),
+            update_check: true,
+            update_seen: String::new(),
         }
     }
 }
@@ -131,6 +137,8 @@ impl Settings {
                     }
                 }
                 "lang" => s.lang = v.to_string(),
+                "update_check" => s.update_check = b,
+                "update_seen" => s.update_seen = v.to_string(),
                 "prev_fm" => s.prev_fm = v.to_string(),
                 "tag" => {
                     if let Some((m, path)) = v.split_once('|') {
@@ -181,6 +189,7 @@ impl Settings {
             out.push_str(&format!("shortcut={}|{}\n", a, c));
         }
         out.push_str(&format!("lang={}\nprev_fm={}\n", self.lang, self.prev_fm));
+        out.push_str(&format!("update_check={}\nupdate_seen={}\n", self.update_check as u8, self.update_seen));
         for (p, m) in &self.tags {
             if *m != 0 {
                 out.push_str(&format!("tag={}|{}\n", m, p.display()));

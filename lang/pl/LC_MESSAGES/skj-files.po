@@ -31,6 +31,9 @@ msgstr "Wstecz (Alt+←)"
 msgid "Cancel"
 msgstr "Anuluj"
 
+msgid "Check now"
+msgstr "Sprawdź teraz"
+
 msgid "Click a shortcut to change it."
 msgstr "Kliknij skrót, żeby go zmienić."
 
@@ -124,6 +127,9 @@ msgstr "Przyjazne daty (Dziś, Wczoraj…)"
 msgid "General"
 msgstr "Ogólne"
 
+msgid "Get {}"
+msgstr "Pobierz {}"
+
 msgid "Grid"
 msgstr "Siatka"
 
@@ -198,6 +204,9 @@ msgstr "Nic nie pasuje"
 
 msgid "OK"
 msgstr "OK"
+
+msgid "Only checks the public release list on GitHub. Nothing is downloaded or installed on its own, and nothing about you is sent."
+msgstr "Sprawdza tylko publiczną listę wydań na GitHubie. Nic nie jest pobierane ani instalowane samo z siebie i nie są wysyłane żadne Twoje dane."
 
 msgid "Open"
 msgstr "Otwórz"
@@ -277,6 +286,9 @@ msgstr "Przywróć wszystkie skróty"
 msgid "Restore all"
 msgstr "Przywróć wszystko"
 
+msgid "SKJ Files {} is out. \"Get\" opens the release page in your browser — nothing is downloaded or installed on its own."
+msgstr "SKJ Files {} jest dostępny. „Pobierz” otwiera stronę wydania w przeglądarce — nic nie jest pobierane ani instalowane samo z siebie."
+
 msgid "SKJ Tech · icons: Lucide · font: Inter"
 msgstr "SKJ Tech · ikony: Lucide · czcionka: Inter"
 
@@ -319,6 +331,9 @@ msgstr "TAGI"
 msgid "Tag"
 msgstr "Tag"
 
+msgid "Tell me when a new version is out"
+msgstr "Powiadom mnie, gdy pojawi się nowa wersja"
+
 msgid "The new one gets a \" - Copy\" name"
 msgstr "Nowy dostanie w nazwie „ — kopia”"
 
@@ -336,6 +351,9 @@ msgstr "Typ"
 
 msgid "Type a command, a folder or a path…"
 msgstr "Wpisz polecenie, folder lub ścieżkę…"
+
+msgid "UPDATES"
+msgstr "AKTUALIZACJE"
 
 msgid "Undo (Ctrl+Z)"
 msgstr "Cofnij (Ctrl+Z)"

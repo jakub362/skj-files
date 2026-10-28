@@ -466,6 +466,9 @@ impl App {
                 a.hook_external_drops();
             })
         });
+        // Not on the startup path: the window and the first listing come first, and a network
+        // round trip has no business delaying either.
+        slint::Timer::single_shot(Duration::from_secs(3), || with_app(|a| a.check_updates(true)));
         self.start_watcher();
 
         // tabs: folders passed on the command line, else the last session, else Home
@@ -532,6 +535,7 @@ impl App {
         g.set_on_windows(cfg!(windows));
         g.set_is_default_fm(crate::sysint::is_default());
         g.set_exe_path(ss(std::env::current_exe().map(|p| p.display().to_string()).unwrap_or_default()));
+        g.set_set_update_check(self.s.update_check);
     }
 
     fn toolbar_on(&self, id: &str) -> bool {
@@ -3344,6 +3348,10 @@ impl App {
                 }
             }
             "default-fm" => self.toggle_default_fm(),
+            "check-updates" => self.check_updates(false),
+            "open-releases" => {
+                let _ = open::that_detached(crate::update::releases_url());
+            }
             "settings-keys" => {
                 self.g().set_set_tab(2);
                 self.open_dialog(Dialog::Settings, ts("Settings"), "", "", 0, ts("Done"), false);
@@ -3818,6 +3826,10 @@ impl App {
                 self.s.friendly_dates = !self.s.friendly_dates;
                 self.g().set_friendly_dates(self.s.friendly_dates);
                 self.rebuild_all();
+            }
+            "update-check" => {
+                self.s.update_check = !self.s.update_check;
+                self.g().set_set_update_check(self.s.update_check);
             }
             _ => {}
         }
@@ -5057,7 +5069,7 @@ impl App {
         }
         match crate::sysint::set_default(on, &self.s.prev_fm) {
             Ok(()) => self.toast(if on {
-                if cfg!(windows) { ts("Done — folders and Win+E now open in SKJ Files") } else { ts("Done — folders now open in SKJ Files") }
+                ts("Done — folders now open in SKJ Files")
             } else if cfg!(windows) {
                 ts("Folders open in File Explorer again")
             } else {
@@ -5066,6 +5078,40 @@ impl App {
             Err(e) => self.toast(tf!("Couldn't change it: {}", e)),
         }
         self.g().set_is_default_fm(crate::sysint::is_default());
+    }
+
+    // ── updates ──
+
+    /// Ask GitHub whether a newer release is out. `quiet` is the automatic check at startup:
+    /// it says nothing when up to date, and nothing about a release the user already dismissed.
+    fn check_updates(&mut self, quiet: bool) {
+        if quiet && !self.s.update_check {
+            return;
+        }
+        if !quiet {
+            self.toast(ts("Checking for updates…"));
+        }
+        let seen = self.s.update_seen.clone();
+        crate::update::check_async(move |found| {
+            let _ = slint::invoke_from_event_loop(move || {
+                with_app(move |a| match found {
+                    Some(n) => {
+                        if quiet && n.tag == seen {
+                            return;
+                        }
+                        a.s.update_seen = n.tag.clone();
+                        a.s.save();
+                        a.g().set_update_version(ss(n.version.clone()));
+                        a.toast(tf!("SKJ Files {} is out — see Settings to get it", n.version));
+                    }
+                    None => {
+                        if !quiet {
+                            a.toast(tf!("You have the newest version ({})", env!("CARGO_PKG_VERSION")));
+                        }
+                    }
+                })
+            });
+        });
     }
 
     // ── Windows: Explorer's own menu ──

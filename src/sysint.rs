@@ -209,6 +209,24 @@ mod imp {
 
 pub use imp::{is_default, previous_default, supported};
 
+/// Hold a named mutex for as long as the app runs, so the installer can tell that SKJ Files is
+/// open and offer to close it instead of failing to replace a locked .exe. The name must match
+/// AppMutex in installer/skj-files.iss. The handle is deliberately leaked: it lives until exit.
+#[cfg(windows)]
+pub fn claim_running_marker() {
+    use std::os::windows::ffi::OsStrExt;
+    use windows::core::PCWSTR;
+    use windows::Win32::System::Threading::CreateMutexW;
+    let name: Vec<u16> = std::ffi::OsStr::new("SKJFilesSingleInstance").encode_wide().chain(Some(0)).collect();
+    unsafe {
+        // Already held by another instance? Fine - we only need it to exist while we run.
+        let _ = CreateMutexW(None, false, PCWSTR(name.as_ptr()));
+    }
+}
+
+#[cfg(not(windows))]
+pub fn claim_running_marker() {}
+
 /// Make SKJ Files the default file manager (`on`) or give the job back.
 pub fn set_default(on: bool, prev: &str) -> Result<(), String> {
     #[cfg(windows)]
