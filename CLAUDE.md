@@ -11,8 +11,9 @@ Earlier work (0.1–0.4) was done in a cloud session; this file carries what tha
 
 - He writes fast with typos; read for intent. He's Polish; the app has a Polish UI.
 - Prefers **one big code block to paste** over many separate commands.
-- **Ask before** creating or pushing any GitHub repo, and before changing the licence (MIT now) to GPL-3.0
-  (GPL is needed for free SignPath code signing — planned, not decided).
+- **Ask before** creating or pushing any GitHub repo, and before changing the licence
+  (**GPL-3.0-only** since 2026-10-28, chosen because free SignPath code signing needs it;
+  the repo is public at github.com/jakub362/skj-files).
 - **Keep the Notion project log updated without being asked** (if the Notion MCP is connected):
   SKJ Files page https://app.notion.com/p/40645efc42ae81518bded47e5dc547fe in the "SKJ Project Log" database
   (data source `collection://002d30fb-7fa1-4e40-9613-2fd55b1e0bb6`). After each chunk of work: add a dated
@@ -33,7 +34,12 @@ SDKROOT=/path/MacOSX14.5.sdk bash scripts/package-macos.sh   # macOS universal .
 - macOS cross-build: `cargo-zigbuild` with **zig pinned to 0.16.0** (`pip install "ziglang==0.16.0"`) —
   zig 0.17 writes duplicate LC_LOAD_DYLIB entries and dyld refuses to start the app. Needs a macOS SDK folder.
   Can't be done from Windows; plan is GitHub Actions with a macOS runner (0.5–0.9).
-- A release build takes ~3–6 min. Deliverable names: `SKJ-Files-<ver>-windows-x64.exe`,
+- A release build takes ~3–6 min in the cloud container; **~15 min cold on kuby-laptop** (native MSVC),
+  ~6 min for a relink after a `build.rs`-only change. The native MSVC build needs no code changes —
+  it compiled clean first try on 2026-10-28, warnings included.
+- `scripts/*.py` need Python (3.15 on kuby-laptop). `make-po.py` writes the `.po` with an explicit
+  `newline='\n'` so Windows doesn't produce CRLF and fight `.gitattributes`.
+- Deliverable names: `SKJ-Files-<ver>-windows-x64.exe`,
   `SKJ-Files-<ver>-linux-x64`, `SKJ-Files-<ver>-macos-universal.zip`, `skj-files-<ver>-source.zip`.
 - `vendor/i-slint-backend-winit` is patched in via `[patch.crates-io]`: (1) a monitor reporting 0 Hz no
   longer divides by zero, (2) `win_dnd.rs` = native OLE drag & drop on Windows (IDropTarget/IDropSource,
