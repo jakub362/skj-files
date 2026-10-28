@@ -35,6 +35,9 @@ pub struct Settings {
     pub toolbar_set: bool,
     /// Custom keyboard shortcuts: (action, combo like "Ctrl+Shift+K")
     pub shortcuts: Vec<(String, String)>,
+    /// User commands shown in the right-click menu: (label, command line).
+    /// {path} {dir} {name} are replaced; anything else is passed through.
+    pub commands: Vec<(String, String)>,
     /// "auto", "en" or "pl"
     pub lang: String,
     /// The file manager that was the default before SKJ Files took over (Linux)
@@ -83,6 +86,7 @@ impl Default for Settings {
             toolbar: Vec::new(),
             toolbar_set: false,
             shortcuts: Vec::new(),
+            commands: Vec::new(),
             lang: "auto".into(),
             prev_fm: String::new(),
             custom_titlebar: false,
@@ -146,6 +150,12 @@ impl Settings {
                 "shortcut" => {
                     if let Some((a, c)) = v.split_once('|') {
                         s.shortcuts.push((a.to_string(), c.to_string()));
+                    }
+                }
+                "command" => {
+                    // label|command line; a label cannot contain '|', the command can
+                    if let Some((label, cmd)) = v.split_once('|') {
+                        s.commands.push((label.to_string(), cmd.to_string()));
                     }
                 }
                 "lang" => s.lang = v.to_string(),

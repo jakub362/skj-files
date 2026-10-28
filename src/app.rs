@@ -201,6 +201,8 @@ pub enum Loc {
     Home,
     Dir(PathBuf),
     Search { root: PathBuf, query: String },
+    /// files with identical contents under `root`
+    Duplicates { root: PathBuf },
     Tag(u8),
     /// the Recycle Bin / Trash
     Bin,
@@ -540,6 +542,9 @@ impl App {
         g.set_accent_index(self.s.accent as i32);
         g.set_density(self.s.density);
         g.set_accent_custom(ss(&self.s.accent_custom));
+        g.set_user_commands(ModelRc::from(
+            self.s.commands.iter().map(|(l, c)| ss(format!("{}  —  {}", l, c))).collect::<Vec<_>>().as_slice(),
+        ));
         g.set_view_mode(self.s.view_mode);
         g.set_sort_key(self.s.sort_key);
         g.set_sort_asc(self.s.sort_asc);
@@ -788,7 +793,7 @@ impl App {
         let tab = Tab { id, panes: [first, Pane::new(Loc::Home)], dual: false, active: 0 };
         self.tabs.push(tab);
         let ti = self.tabs.len() - 1;
-        if let Loc::Dir(_) | Loc::Search { .. } | Loc::Bin = loc {
+        if let Loc::Dir(_) | Loc::Search { .. } | Loc::Duplicates { .. } | Loc::Bin = loc {
             self.start_listing(ti, 0, true);
         }
         if activate {
@@ -855,7 +860,7 @@ impl App {
         let ti = self.cur;
         {
             let p = &mut self.tabs[ti].panes[pi];
-            if p.loc == loc && !matches!(loc, Loc::Search { .. }) {
+            if p.loc == loc && !matches!(loc, Loc::Search { .. } | Loc::Duplicates { .. }) {
                 return;
             }
             if push_history {
@@ -921,7 +926,7 @@ impl App {
                     self.navigate(pi, Loc::Home, true);
                 }
             }
-            Loc::Search { root, .. } => self.navigate(pi, Loc::Dir(root), true),
+            Loc::Search { root, .. } | Loc::Duplicates { root } => self.navigate(pi, Loc::Dir(root), true),
             Loc::Tag(_) | Loc::Bin => self.navigate(pi, Loc::Home, true),
             Loc::Home => {}
         }
@@ -1093,6 +1098,29 @@ impl App {
                 std::thread::spawn(move || {
                     let c2 = cancel.clone();
                     fsx::search(&root, &query, hidden, &move || c2.load(Ordering::SeqCst) != g, &mut |batch, scanned| {
+                        let _ = slint::invoke_from_event_loop(move || with_app(move |a| a.on_search_batch(tab_id, pi, gen, batch, scanned, false)));
+                    });
+                    if cancel.load(Ordering::SeqCst) == g {
+                        let _ = slint::invoke_from_event_loop(move || with_app(move |a| a.on_search_batch(tab_id, pi, gen, Vec::new(), 0, true)));
+                    }
+                });
+            }
+            // Same shape as a search: results stream in on a worker thread and the pane fills up
+            // as they arrive, so a big tree does not block the window.
+            Loc::Duplicates { root } => {
+                let g = self.search_gen.fetch_add(1, Ordering::SeqCst) + 1;
+                let cancel = self.search_gen.clone();
+                let hidden = self.s.show_hidden;
+                {
+                    let p = &mut self.tabs[ti].panes[pi];
+                    p.entries.clear();
+                    p.searched = 0;
+                    p.search_done = false;
+                    p.loading = true;
+                }
+                std::thread::spawn(move || {
+                    let c2 = cancel.clone();
+                    fsx::find_duplicates(&root, hidden, &move || c2.load(Ordering::SeqCst) != g, &mut |batch, scanned| {
                         let _ = slint::invoke_from_event_loop(move || with_app(move |a| a.on_search_batch(tab_id, pi, gen, batch, scanned, false)));
                     });
                     if cancel.load(Ordering::SeqCst) == g {
@@ -1725,6 +1753,7 @@ impl App {
         match loc {
             Loc::Home => (ts("Home").into(), fsx::K_HOME),
             Loc::Search { query, .. } => (tf!("Search: {}", query), fsx::K_SEARCH),
+            Loc::Duplicates { .. } => (ts("Duplicates").to_string(), fsx::K_SEARCH),
             Loc::Tag(i) => (tf!("{} tag", ts(TAG_NAMES[*i as usize % 6])), 27),
             Loc::Bin => (capitalize(fsx::trash_word()), fsx::K_TRASH),
             Loc::Dir(p) => {
@@ -1781,7 +1810,7 @@ impl App {
         for pi in 0..2 {
             let p = &t.panes[pi];
             let home = p.loc == Loc::Home;
-            let search = matches!(p.loc, Loc::Search { .. } | Loc::Tag(_) | Loc::Bin);
+            let search = matches!(p.loc, Loc::Search { .. } | Loc::Duplicates { .. } | Loc::Tag(_) | Loc::Bin);
             let empty = if let Some(e) = &p.error {
                 e.clone()
             } else if p.loc == Loc::Bin {
@@ -1799,6 +1828,7 @@ impl App {
                 Loc::Home => ts("Home").into(),
                 Loc::Dir(d) => d.display().to_string(),
                 Loc::Search { root, query } => tf!("Search \"{}\" in {}", query, root.display()),
+            Loc::Duplicates { root } => tf!("Duplicate files in {}", root.display()),
                 Loc::Tag(i) => tf!("{} tag", ts(TAG_NAMES[*i as usize % 6])),
                 Loc::Bin => capitalize(fsx::trash_word()),
             };
@@ -1829,6 +1859,12 @@ impl App {
             Loc::Bin => (vec![capitalize(fsx::trash_word())], vec![], fsx::K_TRASH, String::new()),
             Loc::Search { root, query } => (
                 vec![fsx::file_name(root), tf!("Search results for \"{}\"", query)],
+                vec![root.clone(), root.clone()],
+                fsx::K_SEARCH,
+                root.display().to_string(),
+            ),
+            Loc::Duplicates { root } => (
+                vec![fsx::file_name(root), ts("Duplicate files").into()],
                 vec![root.clone(), root.clone()],
                 fsx::K_SEARCH,
                 root.display().to_string(),
@@ -1874,7 +1910,7 @@ impl App {
         g.set_side_active(ss(match &loc {
             Loc::Home => "::home".to_string(),
             Loc::Dir(d) => d.display().to_string(),
-            Loc::Search { .. } => String::new(),
+            Loc::Search { .. } | Loc::Duplicates { .. } => String::new(),
             Loc::Tag(i) => format!("::tag:{}", i),
             Loc::Bin => "::bin".to_string(),
         }));
@@ -2966,6 +3002,10 @@ impl App {
             m.push(mi("Compress to ZIP", 53, "compress", ""));
         }
         m.push(tags_row());
+        // the user's own commands, from Settings -> Commands
+        for (i, (label, _)) in self.s.commands.iter().enumerate() {
+            m.push(mi(label, 30, &format!("usercmd:{}", i), ""));
+        }
         if cfg!(windows) {
             m.push(mi("Show more options", 61, "shell-menu", "Shift+F10"));
         }
@@ -3368,6 +3408,15 @@ impl App {
             }
             "default-fm" => self.toggle_default_fm(),
             "check-updates" => self.check_updates(false),
+            "find-dupes" => {
+                let root = match &self.pane().loc {
+                    Loc::Dir(d) => d.clone(),
+                    Loc::Search { root, .. } | Loc::Duplicates { root } => root.clone(),
+                    _ => return,
+                };
+                let pi = self.tabs[self.cur].active;
+                self.navigate(pi, Loc::Duplicates { root }, true);
+            }
             "open-releases" => {
                 let _ = open::that_detached(crate::update::releases_url());
             }
@@ -3384,6 +3433,11 @@ impl App {
                 self.s.save();
                 self.sync_shortcut_rows();
                 self.toast(ts("All shortcuts are back to normal"));
+            }
+            c if c.starts_with("usercmd:") => {
+                if let Ok(i) = c["usercmd:".len()..].parse::<usize>() {
+                    self.run_user_command(i, targets);
+                }
             }
             "restore" => self.bin_restore(targets),
             "restore-all" => {
@@ -3641,7 +3695,7 @@ impl App {
         }
         let root = match &self.pane().loc {
             Loc::Dir(d) => d.clone(),
-            Loc::Search { root, .. } => root.clone(),
+            Loc::Search { root, .. } | Loc::Duplicates { root } => root.clone(),
             Loc::Home | Loc::Tag(_) | Loc::Bin => match dirs::home_dir() {
                 Some(h) => h,
                 None => return,
@@ -3832,6 +3886,32 @@ impl App {
         self.s.save();
     }
 
+    fn sync_user_commands(&self) {
+        let rows: Vec<slint::SharedString> =
+            self.s.commands.iter().map(|(l, c)| ss(format!("{}  —  {}", l, c))).collect();
+        self.g().set_user_commands(ModelRc::from(rows.as_slice()));
+    }
+
+    fn add_command(&mut self, label: String, cmd: String) {
+        let (label, cmd) = (label.trim().to_string(), cmd.trim().to_string());
+        if label.is_empty() || cmd.is_empty() {
+            self.toast(ts("Give the command a name and a command line"));
+            return;
+        }
+        self.s.commands.push((label, cmd));
+        self.s.save();
+        self.sync_user_commands();
+    }
+
+    fn remove_command(&mut self, i: i32) {
+        let i = i as usize;
+        if i < self.s.commands.len() {
+            self.s.commands.remove(i);
+            self.s.save();
+            self.sync_user_commands();
+        }
+    }
+
     fn set_density(&mut self, d: i32) {
         self.s.density = d.clamp(0, 2);
         self.g().set_density(self.s.density);
@@ -3897,7 +3977,7 @@ impl App {
             .map(|t| match &t.panes[t.active].loc {
                 Loc::Home => "::home".to_string(),
                 Loc::Dir(d) => d.display().to_string(),
-                Loc::Search { root, .. } => root.display().to_string(),
+                Loc::Search { root, .. } | Loc::Duplicates { root } => root.display().to_string(),
                 Loc::Tag(_) => "::home".to_string(),
                 Loc::Bin => "::home".to_string(),
             })
@@ -4677,6 +4757,7 @@ impl App {
             p("Type a path", 41, "edit-path"),
             p("Search in this folder", 26, "focus-search"),
             p("Connect to server…", 28, "connect"),
+            p("Find duplicate files", 20, "find-dupes"),
             p("Settings", 46, "settings"),
             p("Keyboard shortcuts", 46, "settings-keys"),
             p("Customize the toolbar", 46, "settings-toolbar"),
@@ -5190,6 +5271,44 @@ impl App {
         self.g().set_is_default_fm(crate::sysint::is_default());
     }
 
+    /// Run one of the user's own commands on the selection.
+    ///
+    /// {path} {dir} {name} {stem} {ext} are replaced per file. The command is handed to the
+    /// system shell, so it is exactly as powerful - and as dangerous - as typing it there; it
+    /// only ever runs because the user wrote it and then picked it from the menu.
+    fn run_user_command(&mut self, idx: usize, targets: Vec<PathBuf>) {
+        let Some((label, cmd)) = self.s.commands.get(idx).cloned() else { return };
+        if targets.is_empty() {
+            return;
+        }
+        let mut failed = 0;
+        for p in &targets {
+            let dir = p.parent().map(|d| d.display().to_string()).unwrap_or_default();
+            let name = fsx::file_name(p);
+            let stem = p.file_stem().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default();
+            let ext = p.extension().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default();
+            let line = cmd
+                .replace("{path}", &p.display().to_string())
+                .replace("{dir}", &dir)
+                .replace("{name}", &name)
+                .replace("{stem}", &stem)
+                .replace("{ext}", &ext);
+            let spawned = if cfg!(windows) {
+                std::process::Command::new("cmd").args(["/C", &line]).current_dir(&dir).spawn()
+            } else {
+                std::process::Command::new("sh").args(["-c", &line]).current_dir(&dir).spawn()
+            };
+            if spawned.is_err() {
+                failed += 1;
+            }
+        }
+        if failed > 0 {
+            self.toast(tf!("Couldn't run {}", label));
+        } else {
+            self.toast(tf!("Ran {}", label));
+        }
+    }
+
     // ── updates ──
 
     /// Ask GitHub whether a newer release is out. `quiet` is the automatic check at startup:
@@ -5442,6 +5561,8 @@ pub fn wire(ui: &AppWindow) {
     g.on_set_theme(|d| with_app(move |a| a.set_theme(d)));
     g.on_set_accent(|i| with_app(move |a| a.set_accent(i as usize)));
     g.on_toggle_setting(|w| with_app(move |a| a.toggle_setting(&w)));
+    g.on_add_command(|l, c| with_app(move |a| a.add_command(l.to_string(), c.to_string())));
+    g.on_remove_command(|i| with_app(move |a| a.remove_command(i)));
     g.on_set_density(|d| with_app(move |a| a.set_density(d)));
     g.on_set_accent_custom(|h| with_app(move |a| a.set_accent_custom(h.to_string())));
     g.on_win_drag(|| with_app(|a| a.win_drag()));

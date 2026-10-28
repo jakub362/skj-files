@@ -13,6 +13,9 @@ msgstr "O PROGRAMIE"
 msgid "APPEARANCE"
 msgstr "WYGLĄD"
 
+msgid "Add"
+msgstr "Dodaj"
+
 msgid "Already there"
 msgstr "Już tam jest"
 
@@ -292,6 +295,9 @@ msgstr "Kosz"
 msgid "Refresh (F5)"
 msgstr "Odśwież (F5)"
 
+msgid "Remove"
+msgstr "Usuń"
+
 msgid "Rename (F2)"
 msgstr "Zmień nazwę (F2)"
 
@@ -309,6 +315,9 @@ msgstr "Przywróć wszystkie skróty"
 
 msgid "Restore all"
 msgstr "Przywróć wszystko"
+
+msgid "SHORTCUTS"
+msgstr "SKRÓTY"
 
 msgid "SKJ Files {} is out. \"Get\" opens the release page in your browser — nothing is downloaded or installed on its own."
 msgstr "SKJ Files {} jest dostępny. „Pobierz” otwiera stronę wydania w przeglądarce — nic nie jest pobierane ani instalowane samo z siebie."
@@ -367,6 +376,9 @@ msgstr "Obecny element trafi do kosza, więc da się go przywrócić"
 msgid "The tab strip becomes the title bar, with the window buttons in it, so there is one bar instead of two. Turn it off to get the system title bar back."
 msgstr "Pasek kart staje się paskiem tytułu, z przyciskami okna w środku, więc jest jeden pasek zamiast dwóch. Wyłącz, aby wrócić do systemowego paska tytułu."
 
+msgid "They appear in the right-click menu. Use {{path}}, {{dir}}, {{name}}, {{stem}} or {{ext}} where the file should go."
+msgstr "Pojawiają się w menu prawego przycisku myszy. Użyj {{path}}, {{dir}}, {{name}}, {{stem}} lub {{ext}} tam, gdzie ma trafić plik."
+
 msgid "Toolbar"
 msgstr "Pasek narzędzi"
 
@@ -408,6 +420,9 @@ msgstr "OKNO"
 
 msgid "Windows 11 only, and it takes effect when you restart SKJ Files — a window can only be made see-through when it is created."
 msgstr "Tylko Windows 11; zadziała po ponownym uruchomieniu SKJ Files — okno może stać się przeźroczyste tylko w chwili tworzenia."
+
+msgid "YOUR OWN COMMANDS"
+msgstr "WŁASNE POLECENIA"
 
 msgid "Your system doesn't let another app replace its file manager."
 msgstr "Twój system nie pozwala innej aplikacji zastąpić menedżera plików."

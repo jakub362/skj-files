@@ -1893,3 +1893,84 @@ pub fn percent_decode(s: &str) -> String {
     }
     String::from_utf8_lossy(&out).into_owned()
 }
+
+/// Find files whose contents are identical, under `root`.
+///
+/// Size first, hash second: files with a unique size cannot have a twin, so only same-size groups
+/// are ever read. That keeps a scan of a big folder tree cheap - most files never get opened.
+/// Results arrive grouped, so the duplicates of one file stay together in the list.
+pub fn find_duplicates(
+    root: &Path,
+    show_hidden: bool,
+    cancel: &dyn Fn() -> bool,
+    found: &mut dyn FnMut(Vec<Entry>, usize),
+) {
+    use std::collections::HashMap;
+
+    // 1. walk, grouping by size
+    let mut by_size: HashMap<u64, Vec<Entry>> = HashMap::new();
+    let mut stack = vec![root.to_path_buf()];
+    let mut scanned = 0usize;
+    while let Some(dir) = stack.pop() {
+        if cancel() {
+            return;
+        }
+        let Ok(rd) = fs::read_dir(&dir) else { continue };
+        let loc = dir.display().to_string();
+        for de in rd.flatten() {
+            scanned += 1;
+            let name = de.file_name().to_string_lossy().into_owned();
+            if !show_hidden && name.starts_with('.') {
+                continue;
+            }
+            let Ok(ft) = de.file_type() else { continue };
+            if ft.is_dir() && !ft.is_symlink() {
+                stack.push(de.path());
+                continue;
+            }
+            if !ft.is_file() {
+                continue;
+            }
+            let Ok(md) = de.metadata() else { continue };
+            let e = entry_from(de.path(), name, &md, loc.clone());
+            if !show_hidden && e.hidden {
+                continue;
+            }
+            // empty files are all "identical"; that is noise, not a finding
+            if e.size > 0 {
+                by_size.entry(e.size).or_default().push(e);
+            }
+        }
+    }
+
+    // 2. hash only the sizes that appear more than once
+    let mut groups: Vec<(u64, Vec<Entry>)> = by_size.into_iter().filter(|(_, v)| v.len() > 1).collect();
+    // biggest first: the duplicates worth deleting are usually the big ones
+    groups.sort_by(|a, b| b.0.cmp(&a.0));
+
+    for (_, candidates) in groups {
+        if cancel() {
+            return;
+        }
+        let mut by_hash: HashMap<String, Vec<Entry>> = HashMap::new();
+        for e in candidates {
+            if cancel() {
+                return;
+            }
+            if let Ok(h) = sha256_file(&e.path, cancel) {
+                by_hash.entry(h).or_default().push(e);
+            }
+        }
+        let mut batch: Vec<Entry> = Vec::new();
+        for (_, mut same) in by_hash {
+            if same.len() > 1 {
+                same.sort_by(|a, b| natural_cmp(&a.name, &b.name));
+                batch.append(&mut same);
+            }
+        }
+        if !batch.is_empty() {
+            found(batch, scanned);
+        }
+    }
+    found(Vec::new(), scanned);
+}

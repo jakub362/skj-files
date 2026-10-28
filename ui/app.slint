@@ -419,6 +419,10 @@ export global S {
     callback set-density(int);
     callback set-accent-custom(string);
     in property <string> accent-custom: "";
+    /// User commands for the right-click menu, as "label|command line"
+    in property <[string]> user-commands: [];
+    callback add-command(string, string);
+    callback remove-command(int);
     in property <bool> window-maximized: false;
     callback win-drag();
     callback win-minimize();
@@ -3960,6 +3964,82 @@ tip: @tr("Settings (Ctrl+,)");
                     }
                     if S.dialog == 3 && S.set-tab == 2: VerticalLayout {
                         spacing: 8px;
+                        Text {
+                            text: @tr("YOUR OWN COMMANDS");
+                            color: Theme.text-faint;
+                            font-size: 11px;
+                            font-weight: 600;
+                        }
+                        Text {
+                            text: @tr("They appear in the right-click menu. Use {{path}}, {{dir}}, {{name}}, {{stem}} or {{ext}} where the file should go.");
+                            color: Theme.text-dim;
+                            font-size: 12px;
+                            wrap: word-wrap;
+                        }
+                        for c[i] in S.user-commands: HorizontalLayout {
+                            spacing: 8px;
+                            height: 30px;
+                            Text {
+                                text: c;
+                                color: Theme.text;
+                                font-size: 12px;
+                                vertical-alignment: center;
+                                overflow: elide;
+                                horizontal-stretch: 1;
+                            }
+                            PillButton {
+                                text: @tr("Remove");
+                                danger: true;
+                                clicked => { S.remove-command(i); }
+                            }
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            Rectangle {
+                                width: 130px;
+                                height: 32px;
+                                border-radius: 8px;
+                                background: Theme.raised;
+                                border-width: 1px;
+                                border-color: lbl.has-focus ? Theme.accent : Theme.border;
+                                lbl := TextInput {
+                                    color: Theme.text;
+                                    font-size: 13px;
+                                    vertical-alignment: center;
+                                    single-line: true;
+                                    width: parent.width - 20px;
+                                    x: 10px;
+                                }
+                            }
+                            Rectangle {
+                                height: 32px;
+                                horizontal-stretch: 1;
+                                border-radius: 8px;
+                                background: Theme.raised;
+                                border-width: 1px;
+                                border-color: cmdin.has-focus ? Theme.accent : Theme.border;
+                                cmdin := TextInput {
+                                    color: Theme.text;
+                                    font-size: 13px;
+                                    vertical-alignment: center;
+                                    single-line: true;
+                                    width: parent.width - 20px;
+                                    x: 10px;
+                                    accepted => { S.add-command(lbl.text, self.text); lbl.text = ""; self.text = ""; }
+                                }
+                            }
+                            PillButton {
+                                text: @tr("Add");
+                                primary: true;
+                                clicked => { S.add-command(lbl.text, cmdin.text); lbl.text = ""; cmdin.text = ""; }
+                            }
+                        }
+                        Text {
+                            text: @tr("SHORTCUTS");
+                            color: Theme.text-faint;
+                            font-size: 11px;
+                            font-weight: 600;
+                        }
                         Text {
                             text: S.capturing != "" ? @tr("Press the new keys for “{}” — Esc cancels, Backspace resets", S.capturing) : @tr("Click a shortcut to change it.");
                             color: S.capturing != "" ? Theme.accent : Theme.text-dim;
