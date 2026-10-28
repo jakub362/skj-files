@@ -340,6 +340,9 @@ msgstr "Nowy dostanie w nazwie „ — kopia”"
 msgid "The one that's there now goes to the bin, so it can be restored"
 msgstr "Obecny element trafi do kosza, więc da się go przywrócić"
 
+msgid "The tab strip becomes the title bar, with the window buttons in it, so there is one bar instead of two. Turn it off to get the system title bar back."
+msgstr "Pasek kart staje się paskiem tytułu, z przyciskami okna w środku, więc jest jeden pasek zamiast dwóch. Wyłącz, aby wrócić do systemowego paska tytułu."
+
 msgid "Toolbar"
 msgstr "Pasek narzędzi"
 
@@ -361,11 +364,17 @@ msgstr "Cofnij (Ctrl+Z)"
 msgid "Up one folder (Alt+↑)"
 msgstr "Folder wyżej (Alt+↑)"
 
+msgid "Use SKJ Files' own title bar"
+msgstr "Używaj własnego paska tytułu SKJ Files"
+
 msgid "User name"
 msgstr "Nazwa użytkownika"
 
 msgid "View"
 msgstr "Widok"
+
+msgid "WINDOW"
+msgstr "OKNO"
 
 msgid "Your system doesn't let another app replace its file manager."
 msgstr "Twój system nie pozwala innej aplikacji zastąpić menedżera plików."

@@ -39,6 +39,8 @@ pub struct Settings {
     pub lang: String,
     /// The file manager that was the default before SKJ Files took over (Linux)
     pub prev_fm: String,
+    /// Draw our own title bar instead of the system one
+    pub custom_titlebar: bool,
     /// Ask GitHub once a day whether a newer release is out
     pub update_check: bool,
     /// Release tag the user has already been told about, so it is only reported once
@@ -77,6 +79,7 @@ impl Default for Settings {
             shortcuts: Vec::new(),
             lang: "auto".into(),
             prev_fm: String::new(),
+            custom_titlebar: false,
             update_check: true,
             update_seen: String::new(),
         }
@@ -137,6 +140,7 @@ impl Settings {
                     }
                 }
                 "lang" => s.lang = v.to_string(),
+                "titlebar" => s.custom_titlebar = b,
                 "update_check" => s.update_check = b,
                 "update_seen" => s.update_seen = v.to_string(),
                 "prev_fm" => s.prev_fm = v.to_string(),
@@ -189,6 +193,7 @@ impl Settings {
             out.push_str(&format!("shortcut={}|{}\n", a, c));
         }
         out.push_str(&format!("lang={}\nprev_fm={}\n", self.lang, self.prev_fm));
+        out.push_str(&format!("titlebar={}\n", self.custom_titlebar as u8));
         out.push_str(&format!("update_check={}\nupdate_seen={}\n", self.update_check as u8, self.update_seen));
         for (p, m) in &self.tags {
             if *m != 0 {

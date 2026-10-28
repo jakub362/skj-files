@@ -3831,6 +3831,10 @@ impl App {
                 self.s.update_check = !self.s.update_check;
                 self.g().set_set_update_check(self.s.update_check);
             }
+            "titlebar" => {
+                self.s.custom_titlebar = !self.s.custom_titlebar;
+                self.apply_titlebar();
+            }
             _ => {}
         }
         self.s.save();
@@ -3860,9 +3864,46 @@ impl App {
     pub fn apply_titlebar(&self) {
         use slint::winit_030::{winit, WinitWindowAccessor};
         let dark = self.s.dark;
+        let custom = self.s.custom_titlebar;
         self.ui.window().with_winit_window(|w| {
             w.set_theme(Some(if dark { winit::window::Theme::Dark } else { winit::window::Theme::Light }));
+            // The system bar goes away only when we draw our own, so the window never ends up
+            // with both or with neither.
+            w.set_decorations(!custom);
         });
+        let g = self.g();
+        g.set_custom_titlebar(custom);
+        g.set_window_maximized(self.window_maximized());
+    }
+
+    fn window_maximized(&self) -> bool {
+        use slint::winit_030::WinitWindowAccessor;
+        self.ui.window().with_winit_window(|w| w.is_maximized()).unwrap_or(false)
+    }
+
+    /// Let the user throw the window around by its own title bar, the way the system bar would.
+    fn win_drag(&self) {
+        use slint::winit_030::WinitWindowAccessor;
+        self.ui.window().with_winit_window(|w| {
+            let _ = w.drag_window();
+        });
+    }
+
+    fn win_minimize(&self) {
+        use slint::winit_030::WinitWindowAccessor;
+        self.ui.window().with_winit_window(|w| w.set_minimized(true));
+    }
+
+    fn win_maximize(&self) {
+        use slint::winit_030::WinitWindowAccessor;
+        let now = self.ui.window().with_winit_window(|w| {
+            let m = !w.is_maximized();
+            w.set_maximized(m);
+            m
+        });
+        if let Some(m) = now {
+            self.g().set_window_maximized(m);
+        }
     }
 
     // ── tags ──
@@ -5332,6 +5373,12 @@ pub fn wire(ui: &AppWindow) {
     g.on_set_theme(|d| with_app(move |a| a.set_theme(d)));
     g.on_set_accent(|i| with_app(move |a| a.set_accent(i as usize)));
     g.on_toggle_setting(|w| with_app(move |a| a.toggle_setting(&w)));
+    g.on_win_drag(|| with_app(|a| a.win_drag()));
+    g.on_win_minimize(|| with_app(|a| a.win_minimize()));
+    g.on_win_maximize(|| with_app(|a| a.win_maximize()));
+    g.on_win_close(|| {
+        let _ = slint::quit_event_loop();
+    });
     g.on_hash_compare_changed(|t| with_app(move |a| a.hash_compare(t.to_string())));
     g.on_hash_copy(|w| with_app(move |a| a.hash_copy(w.to_string())));
     g.on_batch_changed(|| with_app(|a| a.batch_preview()));
