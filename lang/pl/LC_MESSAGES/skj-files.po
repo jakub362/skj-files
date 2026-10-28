@@ -61,8 +61,8 @@ msgstr "Kopiuj ścieżkę"
 msgid "Cut (Ctrl+X)"
 msgstr "Wytnij (Ctrl+X)"
 
-msgid "DEFAULT FILE MANAGER"
-msgstr "DOMYŚLNY MENEDŻER PLIKÓW"
+msgid "DEFAULT FILE MANAGER (EXPERIMENTAL)"
+msgstr "DOMYŚLNY MENEDŻER PLIKÓW (EKSPERYMENTALNE)"
 
 msgid "DRIVES"
 msgstr "DYSKI"
@@ -100,17 +100,20 @@ msgstr "Dwa panele"
 msgid "Empty"
 msgstr "Opróżnij"
 
+msgid "Experimental: Win+E keeps opening File Explorer on recent Windows 11 builds. Folders open here only when you start them from the desktop or the Start menu — double-clicking a folder inside an Explorer window always stays in Explorer."
+msgstr "Eksperymentalne: Win+E nadal otwiera Eksplorator plików w nowszych wersjach Windows 11. Foldery otwierają się tutaj tylko wtedy, gdy uruchomisz je z pulpitu lub menu Start — dwukrotne kliknięcie folderu w oknie Eksploratora zawsze zostaje w Eksploratorze."
+
 msgid "Filter · Enter searches subfolders"
 msgstr "Filtruj · Enter szuka w podfolderach"
 
 msgid "Find"
 msgstr "Znajdź"
 
+msgid "Folders and drives open in SKJ Files instead of File Explorer (only for you, nothing is uninstalled). It uses the app at: {} — if you move it, turn this on again."
+msgstr "Foldery i dyski otwierają się w SKJ Files zamiast w Eksploratorze plików (tylko dla Ciebie, nic nie jest odinstalowywane). Używana jest aplikacja z: {} — jeśli ją przeniesiesz, włącz to ponownie."
+
 msgid "Folders open in SKJ Files instead of your current file manager (only for you). It uses the app at: {} — if you move it, turn this on again."
 msgstr "Foldery otwierają się w SKJ Files zamiast w obecnym menedżerze plików (tylko dla Ciebie). Używana jest aplikacja z: {} — jeśli ją przeniesiesz, włącz to ponownie."
-
-msgid "Folders, drives and Win+E open in SKJ Files instead of File Explorer (only for you, nothing is uninstalled). It uses the app at: {} — if you move it, turn this on again."
-msgstr "Foldery, dyski i Win+E otwierają się w SKJ Files zamiast w Eksploratorze plików (tylko dla Ciebie, nic nie jest odinstalowywane). Używana jest aplikacja z: {} — jeśli ją przeniesiesz, włącz to ponownie."
 
 msgid "Forward (Alt+→)"
 msgstr "Dalej (Alt+→)"

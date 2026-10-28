@@ -3122,7 +3122,7 @@ tip: @tr("Settings (Ctrl+,)");
         TouchArea { }
         card := Rectangle {
             width: S.dialog == 3 ? 560px : S.dialog == 4 ? 500px : S.dialog == 5 ? 680px : S.dialog == 6 || S.dialog == 7 ? 560px : S.dialog == 8 ? 480px : 440px;
-            height: dlg-layout.preferred-height;
+            height: min(dlg-layout.preferred-height, root.height - 48px);
             x: (root.width - self.width) / 2;
             // settings stays put when its tabs change height
             y: S.dialog == 3 ? max(24px, min(60px, root.height - self.height - 24px)) : max(24px, (root.height - self.height) / 2 - 40px);
@@ -3636,6 +3636,15 @@ tip: @tr("Settings (Ctrl+,)");
                             horizontal-stretch: 1;
                         }
                     }
+                    // The settings body can outgrow the window (the System tab is the tallest),
+                    // which used to push the dialog buttons off the bottom edge. Scroll it instead.
+                    if S.dialog == 3: ScrollView {
+                        height: min(set-body.preferred-height, root.height - 240px);
+                        content-height: set-body.preferred-height;
+                        content-width: self.width;
+                        set-body := VerticalLayout {
+                            spacing: 14px;
+                            alignment: start;
                     if S.dialog == 3 && S.set-tab == 0: VerticalLayout {
                         spacing: 10px;
                         Text {
@@ -3867,7 +3876,7 @@ tip: @tr("Settings (Ctrl+,)");
                             height: 6px;
                         }
                         Text {
-                            text: @tr("DEFAULT FILE MANAGER");
+                            text: @tr("DEFAULT FILE MANAGER (EXPERIMENTAL)");
                             color: Theme.text-faint;
                             font-size: 11px;
                             font-weight: 600;
@@ -3879,11 +3888,19 @@ tip: @tr("Settings (Ctrl+,)");
                         }
                         Text {
                             text: !S.fm-supported ? @tr("Your system doesn't let another app replace its file manager.")
-                                : S.on-windows ? @tr("Folders, drives and Win+E open in SKJ Files instead of File Explorer (only for you, nothing is uninstalled). It uses the app at: {} — if you move it, turn this on again.", S.exe-path)
+                                : S.on-windows ? @tr("Folders and drives open in SKJ Files instead of File Explorer (only for you, nothing is uninstalled). It uses the app at: {} — if you move it, turn this on again.", S.exe-path)
                                 : @tr("Folders open in SKJ Files instead of your current file manager (only for you). It uses the app at: {} — if you move it, turn this on again.", S.exe-path);
                             color: Theme.text-dim;
                             font-size: 12px;
                             wrap: word-wrap;
+                        }
+                        if S.fm-supported && S.on-windows: Text {
+                            text: @tr("Experimental: Win+E keeps opening File Explorer on recent Windows 11 builds. Folders open here only when you start them from the desktop or the Start menu — double-clicking a folder inside an Explorer window always stays in Explorer.");
+                            color: Theme.text-faint;
+                            font-size: 12px;
+                            wrap: word-wrap;
+                        }
+                    }
                         }
                     }
                     HorizontalLayout {

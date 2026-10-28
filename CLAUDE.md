@@ -105,13 +105,18 @@ SDKROOT=/path/MacOSX14.5.sdk bash scripts/package-macos.sh   # macOS universal .
 - Tested on real Windows 11 (build 26300) on 2026-10-28: Polish auto-detection, "Show more options",
   drag **into** the app from Explorer, delete to the bin, and shell icons/thumbnails all work.
 - Not yet tested on real hardware: Windows Recycle Bin **restore**, real SMB shares, a real Mac.
+- The default-file-manager feature is **labelled experimental in Settings** (header + a note under
+  the toggle) because of the Win+E failure below. Jakub's call on 2026-10-28.
 - **Win+E takeover does not work on Windows 11 build 26300** and is unfixed. The registry is
   provably correct (`Directory\shell` = `skjfiles` with a valid `command` subkey; the CLSID
   `opennewwindow\command` written and `DelegateExecute` present, confirmed through the merged
   HKCR view), `SHChangeNotify(SHCNE_ASSOCCHANGED)` is now called, and **restarting Explorer did
   not help** — so it is not a caching problem. Prime suspect: `{52205fd8-…}` is the Windows 10
   Quick-access target and Win11 has moved Win+E elsewhere; `{f874310e-b6b7-47dc-bc84-b9e6b38f5903}`
-  exists on 26300 but with an empty default value, so it is worth probing next.
+  exists on 26300 but with an empty default value. **Already tried and ruled out on 2026-10-28:**
+  `SHChangeNotify`, restarting Explorer, and writing `opennewwindow\command` by hand under both
+  `{f874310e-b6b7-47dc-bc84-b9e6b38f5903}` and `{679f85cb-0220-4080-b29b-5540cc05aab6}` — Win+E
+  still opened Explorer every time. Don't repeat those; look for how 26300 actually dispatches Win+E.
   Note that double-clicking a folder **inside an Explorer window** navigates and never invokes the
   shell verb — that is Windows behaviour, not a bug, so test folder association from the desktop.
 
