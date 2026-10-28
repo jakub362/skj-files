@@ -13,6 +13,7 @@ mod imp {
         RegCloseKey, RegCreateKeyExW, RegDeleteTreeW, RegDeleteValueW, RegGetValueW, RegSetValueExW, HKEY, HKEY_CURRENT_USER, KEY_READ, KEY_WRITE,
         REG_OPTION_NON_VOLATILE, REG_SZ, RRF_RT_REG_SZ,
     };
+    use windows::Win32::UI::Shell::{SHChangeNotify, SHCNE_ASSOCCHANGED, SHCNF_IDLIST};
 
     const VERB: &str = "skjfiles";
     // "Home" (Windows 10/11 default for Win+E) and "This PC"
@@ -115,6 +116,11 @@ mod imp {
             for clsid in CLSIDS {
                 del_tree(&format!(r"Software\Classes\CLSID\{}\shell\opennewwindow", clsid));
             }
+        }
+        // Explorer caches file associations, so without this it keeps opening itself on Win+E
+        // (and on folders) until it is restarted or the user signs out and back in.
+        unsafe {
+            SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, None, None);
         }
         Ok(())
     }

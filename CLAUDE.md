@@ -102,8 +102,18 @@ SDKROOT=/path/MacOSX14.5.sdk bash scripts/package-macos.sh   # macOS universal .
 - On Windows just run `target\release\skj-files.exe [folder]`. On Linux headless testing used
   Xvfb + xdotool + ImageMagick `import` screenshots (keys need the window focused; beware a second
   window with the same title).
-- Not yet tested on real hardware: Windows shell thumbnails, Windows Recycle Bin view, Win+E takeover,
-  real SMB shares, a real Mac.
+- Tested on real Windows 11 (build 26300) on 2026-10-28: Polish auto-detection, "Show more options",
+  drag **into** the app from Explorer, delete to the bin, and shell icons/thumbnails all work.
+- Not yet tested on real hardware: Windows Recycle Bin **restore**, real SMB shares, a real Mac.
+- **Win+E takeover does not work on Windows 11 build 26300** and is unfixed. The registry is
+  provably correct (`Directory\shell` = `skjfiles` with a valid `command` subkey; the CLSID
+  `opennewwindow\command` written and `DelegateExecute` present, confirmed through the merged
+  HKCR view), `SHChangeNotify(SHCNE_ASSOCCHANGED)` is now called, and **restarting Explorer did
+  not help** — so it is not a caching problem. Prime suspect: `{52205fd8-…}` is the Windows 10
+  Quick-access target and Win11 has moved Win+E elsewhere; `{f874310e-b6b7-47dc-bc84-b9e6b38f5903}`
+  exists on 26300 but with an empty default value, so it is worth probing next.
+  Note that double-clicking a folder **inside an Explorer window** navigates and never invokes the
+  shell verb — that is Windows behaviour, not a bug, so test folder association from the desktop.
 
 ## Roadmap
 

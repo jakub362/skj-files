@@ -132,6 +132,9 @@ mod win {
     use std::path::Path;
     use windows::core::PCWSTR;
     use windows::Win32::Foundation::SIZE;
+
+    /// The shell is still making the picture; not exported by the windows crate.
+    const E_PENDING: windows::core::HRESULT = windows::core::HRESULT(0x8000_000Au32 as i32);
     use windows::Win32::Graphics::Gdi::{
         CreateCompatibleDC, DeleteDC, DeleteObject, GetDIBits, GetObjectW, BITMAP, BITMAPINFO, BITMAPINFOHEADER, BI_RGB, DIB_RGB_COLORS, HGDIOBJ,
     };
@@ -152,7 +155,22 @@ mod win {
         unsafe {
             let factory: IShellItemImageFactory = SHCreateItemFromParsingName(PCWSTR(wide.as_ptr()), None).ok()?;
             let flags = if icon_ok { SIIGBF_BIGGERSIZEOK } else { SIIGBF_BIGGERSIZEOK | SIIGBF_THUMBNAILONLY };
-            let hbmp = factory.GetImage(SIZE { cx: size as i32, cy: size as i32 }, flags).ok()?;
+            // The shell answers E_PENDING while it is still making the picture in the background.
+            // Treating that as "no thumbnail" is why icons only turned up after F5; we are already
+            // on a worker thread, so wait for it instead (~1.5 s in total, then give up).
+            let sz = SIZE { cx: size as i32, cy: size as i32 };
+            let mut img = None;
+            for wait_ms in [20u64, 40, 80, 150, 300, 400, 500] {
+                match factory.GetImage(sz, flags) {
+                    Ok(b) => {
+                        img = Some(b);
+                        break;
+                    }
+                    Err(e) if e.code() == E_PENDING => std::thread::sleep(std::time::Duration::from_millis(wait_ms)),
+                    Err(_) => return None,
+                }
+            }
+            let hbmp = img?;
             let mut bm = BITMAP::default();
             let got = GetObjectW(HGDIOBJ(hbmp.0), std::mem::size_of::<BITMAP>() as i32, Some(&mut bm as *mut BITMAP as *mut core::ffi::c_void));
             if got == 0 || bm.bmWidth <= 0 || bm.bmHeight == 0 {

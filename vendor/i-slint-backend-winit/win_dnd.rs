@@ -384,13 +384,32 @@ unsafe fn shell_data_object(paths: &[PathBuf]) -> windows::core::Result<IDataObj
 }
 
 unsafe fn run_drag(hwnd: HWND, paths: &[PathBuf], allowed: DROPEFFECT) -> windows::core::Result<DROPEFFECT> {
-    // fall back to a plain file list where the shell can't make one
-    let obj = match unsafe { shell_data_object(paths) } {
-        Ok(o) => o,
-        Err(_) => FileList { paths: paths.to_vec() }.into(),
+    let debug = std::env::var_os("SKJ_DND_DEBUG").is_some();
+    // Our own CF_HDROP object is what Explorer, the desktop and nearly every app accept.
+    //
+    // The shell's own data object (SHCreateDataObject) is NOT used: built the way we build it —
+    // absolute PIDLs with no parent folder — real Windows refuses the drop and shows the "no"
+    // cursor, while SHDoDragDrop still reports success with DROPEFFECT_NONE. It went unnoticed
+    // until 2026-10-28 because Wine makes SHCreateDataObject fail, so every earlier test
+    // silently used the CF_HDROP path below. SKJ_DND_SHELLOBJ=1 brings it back for anyone
+    // wanting to fix it properly (the shell object would give Explorer richer drag images).
+    let obj: IDataObject = if std::env::var_os("SKJ_DND_SHELLOBJ").is_some() {
+        match unsafe { shell_data_object(paths) } {
+            Ok(o) => o,
+            Err(_) => FileList { paths: paths.to_vec() }.into(),
+        }
+    } else {
+        FileList { paths: paths.to_vec() }.into()
     };
+    if debug {
+        eprintln!("[skj dnd] allowed={:#x}, paths={:?}", allowed.0, paths);
+    }
     let source: IDropSource = DropSource.into();
-    match unsafe { SHDoDragDrop(Some(hwnd), &obj, &source, allowed) } {
+    let r = unsafe { SHDoDragDrop(Some(hwnd), &obj, &source, allowed) };
+    if debug {
+        eprintln!("[skj dnd] SHDoDragDrop -> {r:?}");
+    }
+    match r {
         Err(e) if e.code() == E_NOTIMPL => {
             let mut effect = DROPEFFECT_NONE;
             let hr = unsafe { DoDragDrop(&obj, &source, allowed, &mut effect) };
