@@ -524,6 +524,7 @@ impl App {
     fn apply_theme(&self) {
         let t = self.ui.global::<Theme>();
         t.set_dark(self.s.dark);
+        t.set_acrylic(self.s.acrylic);
         // a custom #RRGGBB wins over the preset; anything unparseable falls back to the preset
         let custom = parse_hex(&self.s.accent_custom);
         let (r, g, b) = custom.unwrap_or(ACCENTS[self.s.accent.min(ACCENTS.len() - 1)]);
@@ -3878,6 +3879,7 @@ impl App {
             "acrylic" => {
                 self.s.acrylic = !self.s.acrylic;
                 self.g().set_acrylic(self.s.acrylic);
+                self.apply_theme();
                 self.apply_acrylic();
                 // The window is created transparent or not; it cannot change afterwards, so the
                 // effect only really lands next time.

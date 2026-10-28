@@ -75,8 +75,14 @@ export struct PropRow {
 export global Theme {
     in-out property <bool> dark: true;
     in-out property <color> accent: #6C8CFF;
-    out property <color> bg: dark ? #0E0F12 : #ECEEF2;
-    out property <color> chrome: dark ? #16171C : #FFFFFF;
+    /// Acrylic is drawn by the system *behind* the window, so every large surface has to let
+    /// some of it through. Putting the alpha on the two base colours means every panel that
+    /// uses them follows automatically, instead of each one covering the backdrop up again.
+    in property <bool> acrylic;
+    out property <color> bg-solid: dark ? #0E0F12 : #ECEEF2;
+    out property <color> chrome-solid: dark ? #16171C : #FFFFFF;
+    out property <color> bg: root.acrylic ? root.bg-solid.with-alpha(0.55) : root.bg-solid;
+    out property <color> chrome: root.acrylic ? root.chrome-solid.with-alpha(0.65) : root.chrome-solid;
     out property <color> surface: dark ? #1A1C21 : #FFFFFF;
     out property <color> raised: dark ? #24272E : #F0F2F5;
     out property <color> menu-bg: dark ? #202228 : #FFFFFF;
@@ -1176,7 +1182,8 @@ component FileRowView inherits Rectangle {
     property <bool> real-icon: root.item.has-thumb && (root.item.kind == 9 || root.item.kind == 12);
     // the part you grab to drag files: icon + name (like Explorer); the rest draws a selection box
     property <length> grab-w: 40px + min(name-text.preferred-width + 14px, max(60px, root.width * 0.55));
-    height: 30px;
+    // the density setting; the scrolling maths in FilePane reads the same global
+    height: S.row-height;
     border-radius: 6px;
     background: drop.has-drag ? Theme.accent.with-alpha(0.28) : root.item.selected ? Theme.selection : (bg.has-hover || ta.has-hover) ? Theme.hover : transparent;
     border-width: drop.has-drag ? 1px : 0px;
@@ -2277,7 +2284,7 @@ component ColumnList inherits Rectangle {
     init => { root.reveal(); }
     function reveal() {
         if root.sel >= 0 {
-            clv.content-y = -max(0px, root.sel * 28px - clv.visible-height / 2);
+            clv.content-y = -max(0px, root.sel * (S.row-height - 2px) - clv.visible-height / 2);
         }
     }
     VerticalLayout {
@@ -2296,7 +2303,7 @@ component ColumnList inherits Rectangle {
         }
         clv := ListView {
             for r[i] in root.rows: Rectangle {
-                height: 28px;
+                height: S.row-height - 2px;
                 border-radius: 6px;
                 background: r.sel ? Theme.selection.with-alpha(0.55) : cta.has-hover ? Theme.hover : transparent;
                 cta := TouchArea {
@@ -2782,7 +2789,7 @@ export component AppWindow inherits Window {
     min-height: 460px;
     // Acrylic is drawn by DWM behind the window, so it only shows where we leave some alpha.
     // An opaque background here would cover it completely.
-    background: S.acrylic ? Theme.bg.with-alpha(0.72) : Theme.bg;
+    background: Theme.bg;
     default-font-family: "Inter";
     default-font-size: 13px;
 
