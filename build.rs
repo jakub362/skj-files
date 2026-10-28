@@ -21,7 +21,9 @@ fn embed_windows_resources() {
     res.set_icon("assets/skj-files.ico");
     res.set("ProductName", "SKJ Files");
     res.set("FileDescription", "SKJ Files");
+    res.set("CompanyName", "SKJ Tech");
     let _ = res.compile();
+    println!("cargo:rerun-if-changed=assets/skj-files.ico");
 }
 
 #[cfg(not(windows))]

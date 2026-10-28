@@ -33,5 +33,5 @@ for (a, b) in sorted(plurals):
     out += ['msgid ' + po(a), 'msgid_plural ' + po(b)] + ['msgstr[%d] %s' % (i, po(x)) for i, x in enumerate(f)] + ['']
 dst = os.path.join(root, 'lang', 'pl', 'LC_MESSAGES', 'skj-files.po')
 os.makedirs(os.path.dirname(dst), exist_ok=True)
-open(dst, 'w', encoding='utf-8').write('\n'.join(out))
+open(dst, 'w', encoding='utf-8', newline='\n').write('\n'.join(out))
 print('wrote', dst, len(singles), 'strings +', len(plurals), 'plural')
