@@ -1,0 +1,371 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: pl\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgid "ABOUT"
+msgstr "O PROGRAMIE"
+
+msgid "APPEARANCE"
+msgstr "WYGLĄD"
+
+msgid "Already there"
+msgstr "Już tam jest"
+
+msgid "Ask before deleting"
+msgstr "Pytaj przed usunięciem"
+
+msgid "Automatic"
+msgstr "Automatyczny"
+
+msgid "Automatic follows your system language."
+msgstr "Automatyczny używa języka systemu."
+
+msgid "BEHAVIOUR"
+msgstr "ZACHOWANIE"
+
+msgid "Back (Alt+←)"
+msgstr "Wstecz (Alt+←)"
+
+msgid "Cancel"
+msgstr "Anuluj"
+
+msgid "Click a shortcut to change it."
+msgstr "Kliknij skrót, żeby go zmienić."
+
+msgid "Close (Space / Esc)"
+msgstr "Zamknij (Spacja / Esc)"
+
+msgid "Columns"
+msgstr "Kolumny"
+
+msgid "Combine them; same-name files are replaced (old ones go to the bin)"
+msgstr "Połącz je; pliki o tych samych nazwach zostaną zastąpione (stare trafią do kosza)"
+
+msgid "Command palette (Ctrl+Shift+P)"
+msgstr "Paleta poleceń (Ctrl+Shift+P)"
+
+msgid "Compress to ZIP"
+msgstr "Kompresuj do ZIP"
+
+msgid "Copy"
+msgstr "Kopiuj"
+
+msgid "Copy (Ctrl+C)"
+msgstr "Kopiuj (Ctrl+C)"
+
+msgid "Copy path"
+msgstr "Kopiuj ścieżkę"
+
+msgid "Cut (Ctrl+X)"
+msgstr "Wytnij (Ctrl+X)"
+
+msgid "DEFAULT FILE MANAGER"
+msgstr "DOMYŚLNY MENEDŻER PLIKÓW"
+
+msgid "DRIVES"
+msgstr "DYSKI"
+
+msgid "Dark"
+msgstr "Ciemny"
+
+msgid "Date created"
+msgstr "Data utworzenia"
+
+msgid "Date deleted"
+msgstr "Data usunięcia"
+
+msgid "Date modified"
+msgstr "Data modyfikacji"
+
+msgid "Delete permanently (Del)"
+msgstr "Usuń na zawsze (Del)"
+
+msgid "Deleted items wait here until you empty it. Right-click an item to restore it."
+msgstr "Usunięte elementy czekają tu, aż opróżnisz kosz. Kliknij element prawym przyciskiem, żeby go przywrócić."
+
+msgid "Details"
+msgstr "Szczegóły"
+
+msgid "Drives"
+msgstr "Dyski"
+
+msgid "Drop to add them to this folder"
+msgstr "Upuść, żeby dodać je do tego folderu"
+
+msgid "Dual pane"
+msgstr "Dwa panele"
+
+msgid "Empty"
+msgstr "Opróżnij"
+
+msgid "Filter · Enter searches subfolders"
+msgstr "Filtruj · Enter szuka w podfolderach"
+
+msgid "Find"
+msgstr "Znajdź"
+
+msgid "Folders open in SKJ Files instead of your current file manager (only for you). It uses the app at: {} — if you move it, turn this on again."
+msgstr "Foldery otwierają się w SKJ Files zamiast w obecnym menedżerze plików (tylko dla Ciebie). Używana jest aplikacja z: {} — jeśli ją przeniesiesz, włącz to ponownie."
+
+msgid "Folders, drives and Win+E open in SKJ Files instead of File Explorer (only for you, nothing is uninstalled). It uses the app at: {} — if you move it, turn this on again."
+msgstr "Foldery, dyski i Win+E otwierają się w SKJ Files zamiast w Eksploratorze plików (tylko dla Ciebie, nic nie jest odinstalowywane). Używana jest aplikacja z: {} — jeśli ją przeniesiesz, włącz to ponownie."
+
+msgid "Forward (Alt+→)"
+msgstr "Dalej (Alt+→)"
+
+msgid "Friendly dates (Today, Yesterday…)"
+msgstr "Przyjazne daty (Dziś, Wczoraj…)"
+
+msgid "General"
+msgstr "Ogólne"
+
+msgid "Grid"
+msgstr "Siatka"
+
+msgid "Hashes"
+msgstr "Sumy kontrolne"
+
+msgid "Hashes (Ctrl+Shift+H)"
+msgstr "Sumy kontrolne (Ctrl+Shift+H)"
+
+msgid "Hide hidden files (Ctrl+H)"
+msgstr "Ukryj ukryte pliki (Ctrl+H)"
+
+msgid "Home"
+msgstr "Strona główna"
+
+msgid "Keep both"
+msgstr "Zachowaj oba"
+
+msgid "LANGUAGE"
+msgstr "JĘZYK"
+
+msgid "Large icons"
+msgstr "Duże ikony"
+
+msgid "Leave what's there and don't copy this one"
+msgstr "Zostaw to, co tam jest, i nie kopiuj tego elementu"
+
+msgid "Light"
+msgstr "Jasny"
+
+msgid "Loading…"
+msgstr "Wczytywanie…"
+
+msgid "Location"
+msgstr "Lokalizacja"
+
+msgid "MORE"
+msgstr "WIĘCEJ"
+
+msgid "Merge the folders"
+msgstr "Scal foldery"
+
+msgid "More"
+msgstr "Więcej"
+
+msgid "Move to bin (Del)"
+msgstr "Przenieś do kosza (Del)"
+
+msgid "NETWORK"
+msgstr "SIEĆ"
+
+msgid "Name"
+msgstr "Nazwa"
+
+msgid "New"
+msgstr "Nowy"
+
+msgid "New name"
+msgstr "Nowa nazwa"
+
+msgid "New tab (Ctrl+T)"
+msgstr "Nowa karta (Ctrl+T)"
+
+msgid "No preview for this type yet — press Enter to open it"
+msgstr "Brak podglądu dla tego typu — naciśnij Enter, żeby otworzyć"
+
+msgid "Nothing here"
+msgstr "Nic tu nie ma"
+
+msgid "Nothing matches"
+msgstr "Nic nie pasuje"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Open"
+msgstr "Otwórz"
+
+msgid "Open (Enter)"
+msgstr "Otwórz (Enter)"
+
+msgid "Open folders with SKJ Files"
+msgstr "Otwieraj foldery w SKJ Files"
+
+msgid "Open in VS Code"
+msgstr "Otwórz w VS Code"
+
+msgid "Open in terminal"
+msgstr "Otwórz w terminalu"
+
+msgid "Original location"
+msgstr "Oryginalna lokalizacja"
+
+msgid "Password"
+msgstr "Hasło"
+
+msgid "Paste (Ctrl+V)"
+msgstr "Wklej (Ctrl+V)"
+
+msgid "Paste a hash here to check it"
+msgstr "Wklej tu sumę kontrolną, żeby ją sprawdzić"
+
+msgid "Pick the buttons you want in the toolbar."
+msgstr "Wybierz przyciski, które chcesz mieć na pasku narzędzi."
+
+msgid "Press the new keys for “{}” — Esc cancels, Backspace resets"
+msgstr "Naciśnij nowe klawisze dla „{}” — Esc anuluje, Backspace przywraca domyślny"
+
+msgid "Preview pane (Ctrl+P)"
+msgstr "Panel podglądu (Ctrl+P)"
+
+msgid "Properties (Alt+Enter)"
+msgstr "Właściwości (Alt+Enter)"
+
+msgid "QUICK ACCESS"
+msgstr "SZYBKI DOSTĘP"
+
+msgid "Quick access"
+msgstr "Szybki dostęp"
+
+msgid "Quick look (Space)"
+msgstr "Szybki podgląd (Spacja)"
+
+msgid "Recent files"
+msgstr "Ostatnie pliki"
+
+msgid "Recent folders"
+msgstr "Ostatnie foldery"
+
+msgid "Recycle Bin"
+msgstr "Kosz"
+
+msgid "Refresh (F5)"
+msgstr "Odśwież (F5)"
+
+msgid "Rename (F2)"
+msgstr "Zmień nazwę (F2)"
+
+msgid "Reopen my tabs on startup"
+msgstr "Otwieraj moje karty przy starcie"
+
+msgid "Replace"
+msgstr "Zastąp"
+
+msgid "Replace with"
+msgstr "Zamień na"
+
+msgid "Reset all shortcuts"
+msgstr "Przywróć wszystkie skróty"
+
+msgid "Restore all"
+msgstr "Przywróć wszystko"
+
+msgid "SKJ Tech · icons: Lucide · font: Inter"
+msgstr "SKJ Tech · ikony: Lucide · czcionka: Inter"
+
+msgid "Search"
+msgstr "Szukaj"
+
+msgid "Server"
+msgstr "Serwer"
+
+msgid "Settings (Ctrl+,)"
+msgstr "Ustawienia (Ctrl+,)"
+
+msgid "Shortcuts"
+msgstr "Skróty"
+
+msgid "Show file extensions"
+msgstr "Pokazuj rozszerzenia plików"
+
+msgid "Show hidden files"
+msgstr "Pokazuj ukryte pliki"
+
+msgid "Show hidden files (Ctrl+H)"
+msgstr "Pokaż ukryte pliki (Ctrl+H)"
+
+msgid "Size"
+msgstr "Rozmiar"
+
+msgid "Skip"
+msgstr "Pomiń"
+
+msgid "Sort"
+msgstr "Sortuj"
+
+msgid "System"
+msgstr "System"
+
+msgid "TAGS"
+msgstr "TAGI"
+
+msgid "Tag"
+msgstr "Tag"
+
+msgid "The new one gets a \" - Copy\" name"
+msgstr "Nowy dostanie w nazwie „ — kopia”"
+
+msgid "The one that's there now goes to the bin, so it can be restored"
+msgstr "Obecny element trafi do kosza, więc da się go przywrócić"
+
+msgid "Toolbar"
+msgstr "Pasek narzędzi"
+
+msgid "Tools"
+msgstr "Narzędzia"
+
+msgid "Type"
+msgstr "Typ"
+
+msgid "Type a command, a folder or a path…"
+msgstr "Wpisz polecenie, folder lub ścieżkę…"
+
+msgid "Undo (Ctrl+Z)"
+msgstr "Cofnij (Ctrl+Z)"
+
+msgid "Up one folder (Alt+↑)"
+msgstr "Folder wyżej (Alt+↑)"
+
+msgid "User name"
+msgstr "Nazwa użytkownika"
+
+msgid "View"
+msgstr "Widok"
+
+msgid "Your system doesn't let another app replace its file manager."
+msgstr "Twój system nie pozwala innej aplikacji zastąpić menedżera plików."
+
+msgid "e.g. Holiday {{nn}} or {{date}} {{name}}"
+msgstr "np. Wakacje {{nn}} lub {{date}} {{name}}"
+
+msgid "from {}"
+msgstr "z {}"
+
+msgid "optional"
+msgstr "opcjonalnie"
+
+msgid "text to replace (optional)"
+msgstr "tekst do zamiany (opcjonalnie)"
+
+msgid "← → previous / next   ·   Space or Esc to close"
+msgstr "← → poprzedni / następny   ·   Spacja lub Esc zamyka"
+
+msgid "Do the same for the other {n} clash"
+msgid_plural "Do the same for the other {n} clashes"
+msgstr[0] "Zastosuj też do {n} pozostałego konfliktu"
+msgstr[1] "Zastosuj też do {n} pozostałych konfliktów"
+msgstr[2] "Zastosuj też do {n} pozostałych konfliktów"

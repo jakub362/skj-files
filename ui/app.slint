@@ -1,0 +1,4225 @@
+// SKJ Files — UI
+// Original SKJ design. Icons: Lucide (ISC). Font: Inter (OFL). Built with Slint.
+
+import { ListView, ScrollView, AboutSlint, Palette } from "std-widgets.slint";
+import "fonts/Inter-Regular.ttf";
+import "fonts/Inter-Medium.ttf";
+import "fonts/Inter-SemiBold.ttf";
+
+// ───────────────────────── data ─────────────────────────
+
+export struct FileRow {
+    name: string,
+    kind: int,
+    size: string,
+    date: string,
+    created: string,
+    type-name: string,
+    location: string,
+    selected: bool,
+    dim: bool,
+    thumb: image,
+    has-thumb: bool,
+    tags: [color],
+}
+
+export struct ColRow {
+    name: string,
+    kind: int,
+    dir: bool,
+    sel: bool,
+}
+
+export struct ColData {
+    title: string,
+    rows: [ColRow],
+    sel: int,
+}
+
+export struct TabInfo {
+    title: string,
+    kind: int,
+}
+
+export struct SideItem {
+    label: string,
+    kind: int,
+    path: string,
+    usage: float,
+    sub: string,
+    color: color,
+}
+
+export struct Crumb {
+    label: string,
+    index: int,
+}
+
+export struct MenuEntry {
+    label: string,
+    icon: int,
+    action: string,
+    separator: bool,
+    danger: bool,
+    shortcut: string,
+    checked: bool,
+}
+
+export struct PropRow {
+    key: string,
+    value: string,
+}
+
+// ───────────────────────── theme ─────────────────────────
+
+export global Theme {
+    in-out property <bool> dark: true;
+    in-out property <color> accent: #6C8CFF;
+    out property <color> bg: dark ? #0E0F12 : #ECEEF2;
+    out property <color> chrome: dark ? #16171C : #FFFFFF;
+    out property <color> surface: dark ? #1A1C21 : #FFFFFF;
+    out property <color> raised: dark ? #24272E : #F0F2F5;
+    out property <color> menu-bg: dark ? #202228 : #FFFFFF;
+    out property <color> hover: dark ? #FFFFFF10 : #0000000B;
+    out property <color> press: dark ? #FFFFFF1C : #00000014;
+    out property <color> border: dark ? #FFFFFF14 : #0000001C;
+    out property <color> text: dark ? #ECEEF2 : #1A1C21;
+    out property <color> text-dim: dark ? #A3A9B4 : #586070;
+    out property <color> text-faint: dark ? #6E7480 : #949BA7;
+    out property <color> selection: accent.with-alpha(dark ? 0.26 : 0.18);
+    out property <color> selection-strong: accent.with-alpha(0.6);
+    out property <color> danger: #F0565C;
+    out property <color> folder: #F5B84A;
+}
+
+export global Icons {
+    out property <image> folder: @image-url("icons/folder-fill.svg");
+    out property <image> folder-open: @image-url("icons/folder-open.svg");
+    out property <image> file: @image-url("icons/file.svg");
+    out property <image> file-image: @image-url("icons/file-image.svg");
+    out property <image> file-video: @image-url("icons/file-video.svg");
+    out property <image> file-music: @image-url("icons/file-music.svg");
+    out property <image> file-archive: @image-url("icons/file-archive.svg");
+    out property <image> file-code: @image-url("icons/file-code.svg");
+    out property <image> file-text: @image-url("icons/file-text.svg");
+    out property <image> file-sheet: @image-url("icons/file-spreadsheet.svg");
+    out property <image> app-window: @image-url("icons/app-window.svg");
+    out property <image> disc: @image-url("icons/disc-3.svg");
+    out property <image> link: @image-url("icons/link.svg");
+    out property <image> house: @image-url("icons/house.svg");
+    out property <image> monitor: @image-url("icons/monitor.svg");
+    out property <image> download: @image-url("icons/download.svg");
+    out property <image> image: @image-url("icons/image.svg");
+    out property <image> music: @image-url("icons/music.svg");
+    out property <image> film: @image-url("icons/film.svg");
+    out property <image> hard-drive: @image-url("icons/hard-drive.svg");
+    out property <image> usb: @image-url("icons/usb.svg");
+    out property <image> arrow-left: @image-url("icons/arrow-left.svg");
+    out property <image> arrow-right: @image-url("icons/arrow-right.svg");
+    out property <image> arrow-up: @image-url("icons/arrow-up.svg");
+    out property <image> refresh: @image-url("icons/rotate-cw.svg");
+    out property <image> search: @image-url("icons/search.svg");
+    out property <image> plus: @image-url("icons/plus.svg");
+    out property <image> x: @image-url("icons/x.svg");
+    out property <image> cut: @image-url("icons/scissors.svg");
+    out property <image> copy: @image-url("icons/copy.svg");
+    out property <image> paste: @image-url("icons/clipboard-paste.svg");
+    out property <image> rename: @image-url("icons/pencil.svg");
+    out property <image> trash: @image-url("icons/trash-2.svg");
+    out property <image> folder-plus: @image-url("icons/folder-plus.svg");
+    out property <image> file-plus: @image-url("icons/file-plus.svg");
+    out property <image> grid: @image-url("icons/layout-grid.svg");
+    out property <image> list: @image-url("icons/list.svg");
+    out property <image> columns: @image-url("icons/columns-2.svg");
+    out property <image> panel-right: @image-url("icons/panel-right.svg");
+    out property <image> eye: @image-url("icons/eye.svg");
+    out property <image> eye-off: @image-url("icons/eye-off.svg");
+    out property <image> sort: @image-url("icons/arrow-up-down.svg");
+    out property <image> chevron-right: @image-url("icons/chevron-right.svg");
+    out property <image> chevron-down: @image-url("icons/chevron-down.svg");
+    out property <image> ellipsis: @image-url("icons/ellipsis.svg");
+    out property <image> settings: @image-url("icons/settings.svg");
+    out property <image> info: @image-url("icons/info.svg");
+    out property <image> open: @image-url("icons/external-link.svg");
+    out property <image> star: @image-url("icons/star.svg");
+    out property <image> terminal: @image-url("icons/terminal.svg");
+    out property <image> check: @image-url("icons/check.svg");
+    out property <image> user: @image-url("icons/user.svg");
+    out property <image> files: @image-url("icons/files.svg");
+    out property <image> folder-search: @image-url("icons/folder-search.svg");
+    out property <image> cloud: @image-url("icons/cloud.svg");
+    out property <image> copy-plus: @image-url("icons/copy-plus.svg");
+    out property <image> folder-input: @image-url("icons/folder-input.svg");
+    out property <image> clock: @image-url("icons/clock.svg");
+    out property <image> logo: @image-url("icons/skj-logo.svg");
+    out property <image> hash: @image-url("icons/hash.svg");
+    out property <image> package: @image-url("icons/package.svg");
+    out property <image> package-open: @image-url("icons/package-open.svg");
+    out property <image> code: @image-url("icons/code.svg");
+    out property <image> undo: @image-url("icons/undo-2.svg");
+    out property <image> tag: @image-url("icons/tag.svg");
+    out property <image> scan-eye: @image-url("icons/scan-eye.svg");
+    out property <image> git-branch: @image-url("icons/git-branch.svg");
+    out property <image> pencil-line: @image-url("icons/pencil-line.svg");
+    out property <image> shield-check: @image-url("icons/shield-check.svg");
+    out property <image> circle-check: @image-url("icons/circle-check.svg");
+    out property <image> circle-x: @image-url("icons/circle-x.svg");
+    out property <image> loader: @image-url("icons/loader-circle.svg");
+    out property <image> drag-badge: @image-url("icons/drag-badge.png");
+    out property <image> server: @image-url("icons/server.svg");
+    out property <image> command: @image-url("icons/command.svg");
+    out property <image> columns3: @image-url("icons/columns-3.svg");
+    out property <image> square-menu: @image-url("icons/square-menu.svg");
+    out property <image> keyboard: @image-url("icons/keyboard.svg");
+    out property <image> languages: @image-url("icons/languages.svg");
+    out property <image> plug: @image-url("icons/plug.svg");
+}
+
+export global Tip {
+    in-out property <string> text;
+    in-out property <length> x;
+    in-out property <length> y;
+    in-out property <bool> armed;
+    in-out property <bool> show;
+}
+
+// Kinds: 0 folder · 1 file · 2 image · 3 video · 4 audio · 5 archive · 6 code · 7 text · 8 sheet
+// 9 app · 10 disc image · 11 pdf · 12 link · 13 drive · 14 usb · 15 home · 16 desktop · 17 downloads
+// 18 pictures · 19 music · 20 videos · 21 documents · 22 user · 23 cloud · 24 trash · 25 recent · 26 search
+// Menu-only: 30 open · 31 cut · 32 copy · 33 paste · 34 rename · 35 delete · 36 new folder · 37 new file
+// 38 terminal · 39 properties · 40 pin · 41 copy path · 42 new tab · 43 refresh · 44 eye · 46 settings
+// 47 folder from selection · 48 sort · 49 grid · 50 list · 51 open with
+export global K {
+    public pure function icon(k: int) -> image {
+        return k == 0 ? Icons.folder : k == 2 ? Icons.file-image : k == 3 ? Icons.file-video : k == 4 ? Icons.file-music
+            : k == 5 ? Icons.file-archive : k == 6 ? Icons.file-code : k == 7 ? Icons.file-text : k == 8 ? Icons.file-sheet
+            : k == 9 ? Icons.app-window : k == 10 ? Icons.disc : k == 11 ? Icons.file-text : k == 12 ? Icons.link
+            : k == 13 ? Icons.hard-drive : k == 14 ? Icons.usb : k == 15 ? Icons.house : k == 16 ? Icons.monitor
+            : k == 17 ? Icons.download : k == 18 ? Icons.image : k == 19 ? Icons.music : k == 20 ? Icons.film
+            : k == 21 ? Icons.file-text : k == 22 ? Icons.user : k == 23 ? Icons.cloud : k == 24 ? Icons.trash
+            : k == 25 ? Icons.clock : k == 26 ? Icons.search : k == 27 ? Icons.tag : k == 28 ? Icons.server : k == 29 ? Icons.plug
+            : k == 30 ? Icons.open : k == 31 ? Icons.cut : k == 32 ? Icons.copy : k == 33 ? Icons.paste
+            : k == 34 ? Icons.rename : k == 35 ? Icons.trash : k == 36 ? Icons.folder-plus : k == 37 ? Icons.file-plus
+            : k == 38 ? Icons.terminal : k == 39 ? Icons.info : k == 40 ? Icons.star : k == 41 ? Icons.link
+            : k == 42 ? Icons.plus : k == 43 ? Icons.refresh : k == 44 ? Icons.eye : k == 46 ? Icons.settings
+            : k == 47 ? Icons.folder-input : k == 48 ? Icons.sort : k == 49 ? Icons.grid : k == 50 ? Icons.list
+            : k == 51 ? Icons.copy-plus : k == 52 ? Icons.hash : k == 53 ? Icons.package : k == 54 ? Icons.package-open
+            : k == 55 ? Icons.code : k == 56 ? Icons.undo : k == 57 ? Icons.tag : k == 58 ? Icons.scan-eye
+            : k == 59 ? Icons.pencil-line : k == 60 ? Icons.shield-check : k == 61 ? Icons.square-menu : k == 62 ? Icons.command
+            : k == 63 ? Icons.columns3 : k == 64 ? Icons.languages : k == 65 ? Icons.keyboard
+            : Icons.file;
+    }
+
+    // drop action code from Rust → DragAction
+    public pure function act(a: int) -> DragAction {
+        return a == 1 ? DragAction.copy : a == 2 ? DragAction.move : DragAction.none;
+    }
+
+    public pure function color(k: int) -> color {
+        return k == 0 ? Theme.folder : k == 2 ? #4CC38A : k == 3 ? #A78BFA : k == 4 ? #F472B6 : k == 5 ? #F59E0B
+            : k == 6 ? #60A5FA : k == 7 ? Theme.text-dim : k == 8 ? #22C55E : k == 9 ? #94A3B8 : k == 10 ? #38BDF8
+            : k == 11 ? #F87171 : k == 12 ? #94A3B8
+            : k >= 13 && k <= 29 ? Theme.accent
+            : Theme.text-dim;
+    }
+}
+
+// ───────────────────────── app state (driven from Rust) ─────────────────────────
+
+export global S {
+    // tabs
+    in property <[TabInfo]> tabs;
+    in property <int> active-tab;
+    // panes
+    in property <bool> dual;
+    in property <int> active-pane;
+    in property <[FileRow]> p0-files;
+    in property <[FileRow]> p1-files;
+    in property <bool> p0-home: true;
+    in property <bool> p1-home;
+    in property <bool> p0-search;
+    in property <bool> p1-search;
+    in property <string> p0-empty;
+    in property <string> p1-empty;
+    in property <bool> p0-loading;
+    in property <bool> p1-loading;
+    in property <string> p0-header;
+    in property <string> p1-header;
+    // navigation
+    in property <[Crumb]> crumbs;
+    in property <int> loc-kind: 15;
+    in property <string> path-text;
+    in-out property <bool> edit-path;
+    in property <bool> can-back;
+    in property <bool> can-forward;
+    in property <bool> can-up;
+    in-out property <string> search-text;
+    in property <string> search-placeholder: @tr("Search");
+    // view
+    in property <int> view-mode;
+    in property <int> sort-key;
+    in property <bool> sort-asc: true;
+    in property <bool> show-hidden;
+    in property <bool> show-preview: true;
+    in property <int> sel-count;
+    in property <bool> can-paste;
+    in property <bool> in-folder;
+    in-out property <int> grid-cols: 1;
+    // sidebar + home
+    in property <[SideItem]> quick;
+    in property <[SideItem]> drives;
+    in property <[SideItem]> recent;
+    in property <[SideItem]> places;
+    in property <string> side-active;
+    // preview
+    in property <bool> pv-has-image;
+    in property <image> pv-image;
+    in property <int> pv-kind: 15;
+    in property <string> pv-title;
+    in property <string> pv-subtitle;
+    in property <[PropRow]> pv-props;
+    in property <bool> pv-has-text;
+    in property <string> pv-text;
+    in property <string> mono-font: "monospace";
+    // status
+    in property <string> status-left;
+    in property <string> status-right;
+    in property <float> op-progress: -1;
+    in property <string> op-text;
+    in property <string> toast;
+    // menu
+    in property <[MenuEntry]> menu;
+    in property <length> menu-x;
+    in property <length> menu-y;
+    in property <length> menu-h: 100px;
+    // dialogs: 0 none · 1 input · 2 confirm · 3 settings · 4 properties
+    in property <int> dialog;
+    in property <string> dialog-title;
+    in property <string> dialog-message;
+    in-out property <string> dialog-text;
+    in property <int> dialog-sel-end;
+    in property <string> dialog-ok-text: @tr("OK");
+    in property <bool> dialog-danger;
+    in property <[PropRow]> dialog-props;
+    in property <string> dialog-aux: "";
+    // settings
+    in property <bool> set-show-ext: true;
+    in property <bool> set-restore: true;
+    in property <bool> set-confirm-delete: true;
+    in property <int> accent-index;
+    in property <[color]> accents: [#6C8CFF, #8B5CF6, #14B8A6, #22C55E, #F59E0B, #EF4444, #EC4899];
+    in property <string> version: "0.1.0";
+    in property <string> window-title: "SKJ Files";
+    // scrolling requests
+    in property <int> ensure-gen;
+    in property <int> ensure-pane;
+    in property <int> ensure-index;
+    // v0.2
+    in property <data-transfer> drag-data;
+    in property <bool> can-undo;
+    in property <string> git-branch;
+    in property <int> loc-tag: -1;
+    in property <[SideItem]> tag-items;
+    in property <bool> friendly-dates: true;
+    in property <int> grid-size: 1;
+    in property <[color]> tag-colors: [#EF4444, #F97316, #EAB308, #22C55E, #3B82F6, #A855F7];
+    in property <[PropRow]> hash-rows;
+    in property <string> hash-file;
+    in property <float> hash-progress;
+    in property <bool> hash-busy;
+    in-out property <string> hash-compare;
+    in property <string> hash-match;
+    in property <int> hash-match-state;
+    in property <bool> hash-verify;
+    in-out property <string> batch-find;
+    in-out property <string> batch-replace;
+    in-out property <string> batch-pattern;
+    in property <[PropRow]> batch-preview;
+    in property <string> batch-summary;
+    in property <bool> ql;
+    in property <image> ql-image;
+    in property <bool> ql-has-image;
+    in property <string> ql-title;
+    in property <string> ql-sub;
+    in property <string> ql-text;
+    in property <bool> ql-has-text;
+    in property <int> ql-kind;
+    // v0.3
+    in property <bool> p0-bin;
+    in property <bool> p1-bin;
+    in property <bool> in-bin;
+    in property <bool> op-cancelling;
+    in property <int> rename-pane: -1;
+    in property <int> rename-index: -1;
+    in property <string> rename-text;
+    in property <int> rename-sel-end;
+    in-out property <length> col-w-date: 140px;
+    in-out property <length> col-w-created: 140px;
+    in-out property <length> col-w-type: 130px;
+    in-out property <length> col-w-size: 76px;
+    in-out property <length> col-w-loc: 220px;
+    in property <bool> col-date: true;
+    in property <bool> col-created: false;
+    in property <bool> col-type: true;
+    in property <bool> col-size: true;
+    in property <string> cf-name;
+    in property <int> cf-kind;
+    in property <string> cf-new;
+    in property <string> cf-old;
+    in property <string> cf-new-badge;
+    in property <string> cf-old-badge;
+    in property <string> cf-new-from;
+    in property <bool> cf-merge;
+    in property <int> cf-left;
+    in-out property <bool> cf-all;
+    in property <bool> ext-drop;
+    // v0.4
+    in property <bool> pal;
+    in-out property <string> pal-query;
+    in property <[MenuEntry]> pal-rows;
+    in-out property <int> pal-index;
+    in property <[ColData]> p0-cols;
+    in property <[ColData]> p1-cols;
+    in property <[ColRow]> p0-child;
+    in property <[ColRow]> p1-child;
+    in property <string> p0-child-title;
+    in property <string> p1-child-title;
+    in property <[data-transfer]> tab-drags;
+    in property <[SideItem]> network;
+    in property <[SideItem]> recent-files;
+    in property <[bool]> tb: [true, true, true, true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false];
+    in property <[MenuEntry]> tb-rows;
+    in property <[MenuEntry]> key-rows;
+    in property <string> capturing;
+    in-out property <int> set-tab;
+    in property <bool> fm-supported;
+    in property <bool> on-windows;
+    in-out property <string> lang-setting: "auto";
+    in property <bool> is-default-fm;
+    in property <string> exe-path;
+    in-out property <string> cn-user;
+    in-out property <string> cn-pass;
+    callback pal-changed(string);
+    callback pal-run(int);
+    callback pal-close();
+    callback col-click(int, int, int, bool);
+    callback tab-menu(int, length, length);
+    callback tab-can-drop(int, data-transfer, bool) -> int;
+    callback tab-drop(int, data-transfer, bool);
+    callback shortcut-capture(string);
+    callback shortcut-key(string, bool, bool, bool);
+    callback rename-commit(string, bool);
+    callback marquee-begin(int, bool);
+    callback marquee(int, float, float, float, float, int, float, float, float, float, float);
+    callback marquee-end();
+    callback conflict-choose(int);
+    callback col-resized();
+    callback header-menu(length, length);
+
+    callback hash-compare-changed(string);
+    callback hash-copy(string);
+    callback batch-changed();
+    callback can-drop-at(string, data-transfer, bool) -> int;
+    callback drop-at(string, data-transfer, bool);
+    callback ql-close();
+    callback ql-open();
+    callback row-click(int, int);
+
+    callback tab-select(int);
+    callback tab-close(int);
+    callback tab-new();
+    callback pane-activate(int);
+    callback nav-back();
+    callback nav-forward();
+    callback nav-up();
+    callback refresh();
+    callback open-path(string);
+    callback open-path-new-tab(string);
+    callback crumb-clicked(int);
+    callback path-entered(string);
+    callback search-changed(string);
+    callback search-submitted(string);
+    callback row-down(int, int, bool, bool);
+    callback row-right(int, int, length, length);
+    callback row-middle(int, int);
+    callback row-open(int, int);
+    callback bg-down(int, bool);
+    callback bg-menu(int, length, length);
+    callback sort-by(int);
+    callback cmd(string);
+    callback cmd-at(string, length, length);
+    callback menu-action(string);
+    callback side-menu(string, length, length);
+    callback dialog-ok(string);
+    callback dialog-cancel();
+    callback dialog-aux-clicked();
+    callback key(string, bool, bool, bool) -> bool;
+    callback set-theme(bool);
+    callback set-accent(int);
+    callback toggle-setting(string);
+}
+
+// ───────────────────────── small widgets ─────────────────────────
+
+component Icon inherits Image {
+    in property <color> tint: Theme.text-dim;
+    in property <length> size: 16px;
+    width: size;
+    height: size;
+    colorize: tint;
+}
+
+component ToolButton inherits Rectangle {
+    in property <image> icon;
+    in property <string> tip;
+    in property <string> label;
+    in property <bool> enabled: true;
+    in property <bool> checked;
+    in property <bool> dropdown;
+    in property <color> tint: Theme.text;
+    callback clicked();
+    callback clicked-at(length, length);
+    height: 32px;
+    min-width: 32px;
+    border-radius: 7px;
+    background: !root.enabled ? transparent : root.checked ? Theme.selection : ta.pressed ? Theme.press : ta.has-hover ? Theme.hover : transparent;
+    animate background { duration: 90ms; }
+    property <bool> hov: ta.has-hover;
+    changed hov => {
+        if root.hov && root.tip != "" {
+            Tip.text = root.tip;
+            Tip.x = root.absolute-position.x + root.width / 2;
+            Tip.y = root.absolute-position.y + root.height + 6px;
+            Tip.armed = true;
+        } else if Tip.text == root.tip {
+            Tip.armed = false;
+            Tip.show = false;
+        }
+    }
+    ta := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: root.enabled ? pointer : default;
+        clicked => {
+            Tip.armed = false;
+            Tip.show = false;
+            root.clicked();
+            root.clicked-at(root.absolute-position.x, root.absolute-position.y + root.height + 4px);
+        }
+    }
+    HorizontalLayout {
+        padding-left: 8px;
+        padding-right: root.label == "" && !root.dropdown ? 8px : 10px;
+        spacing: 6px;
+        VerticalLayout {
+            alignment: center;
+            Icon {
+                source: root.icon;
+                tint: !root.enabled ? Theme.text-faint : root.checked ? Theme.accent : root.tint;
+            }
+        }
+        if root.label != "": Text {
+            text: root.label;
+            vertical-alignment: center;
+            color: root.enabled ? Theme.text : Theme.text-faint;
+            font-size: 13px;
+        }
+        if root.dropdown: VerticalLayout {
+            alignment: center;
+            Icon {
+                source: Icons.chevron-down;
+                size: 12px;
+                tint: Theme.text-faint;
+            }
+        }
+    }
+}
+
+component Sep inherits Rectangle {
+    width: 1px;
+    height: 20px;
+    background: Theme.border;
+}
+
+component PillButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> primary;
+    in property <bool> danger;
+    callback clicked();
+    height: 34px;
+    min-width: 88px;
+    border-radius: 8px;
+    background: root.danger ? (ta.has-hover ? Theme.danger.darker(0.1) : Theme.danger)
+        : root.primary ? (ta.has-hover ? Theme.accent.darker(0.1) : Theme.accent)
+        : (ta.has-hover ? Theme.press : Theme.raised);
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        Text {
+            text: root.text;
+            vertical-alignment: center;
+            horizontal-alignment: center;
+            color: root.primary || root.danger ? #FFFFFF : Theme.text;
+            font-weight: 600;
+        }
+    }
+}
+
+component Toggle inherits Rectangle {
+    in property <bool> on;
+    in property <string> text;
+    callback toggled();
+    height: 34px;
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.toggled(); }
+    }
+    HorizontalLayout {
+        spacing: 12px;
+        Text {
+            text: root.text;
+            vertical-alignment: center;
+            color: Theme.text;
+            horizontal-stretch: 1;
+        }
+        VerticalLayout {
+            alignment: center;
+            Rectangle {
+                width: 38px;
+                height: 22px;
+                border-radius: 11px;
+                background: root.on ? Theme.accent : Theme.raised;
+                border-width: root.on ? 0 : 1px;
+                border-color: Theme.border;
+                animate background { duration: 120ms; }
+                Rectangle {
+                    width: 16px;
+                    height: 16px;
+                    border-radius: 8px;
+                    y: 3px;
+                    x: root.on ? parent.width - self.width - 3px : 3px;
+                    background: #FFFFFF;
+                    animate x { duration: 120ms; easing: ease-out; }
+                }
+            }
+        }
+    }
+}
+
+// ───────────────────────── tab strip ─────────────────────────
+
+component TabItem inherits Rectangle {
+    in property <TabInfo> info;
+    in property <int> index;
+    in property <bool> active;
+    preferred-width: 210px;
+    min-width: 90px;
+    max-width: 230px;
+    height: 36px;
+    border-top-left-radius: 9px;
+    border-top-right-radius: 9px;
+    background: tdrop.has-drag ? Theme.accent.with-alpha(0.25) : root.active ? Theme.chrome : ta.has-hover ? Theme.hover : transparent;
+    // drag a tab onto another one to reorder; drop files on a tab to put them in its folder
+    DragArea {
+        data: root.index < S.tab-drags.length ? S.tab-drags[root.index] : S.drag-data;
+        allow-move: true;
+        ta := TouchArea {
+            pointer-event(e) => {
+                if e.kind == PointerEventKind.down {
+                    if e.button == PointerEventButton.middle {
+                        S.tab-close(root.index);
+                    } else if e.button == PointerEventButton.left {
+                        S.tab-select(root.index);
+                    } else if e.button == PointerEventButton.right {
+                        S.tab-menu(root.index, root.absolute-position.x + self.mouse-x, root.absolute-position.y + self.mouse-y);
+                    }
+                }
+            }
+        }
+    }
+    tdrop := DropArea {
+        can-drop(ev) => {
+            return K.act(S.tab-can-drop(root.index, ev.data, ev.proposed-action == DragAction.copy));
+        }
+        dropped(ev) => {
+            let a = S.tab-can-drop(root.index, ev.data, ev.proposed-action == DragAction.copy);
+            S.tab-drop(root.index, ev.data, ev.proposed-action == DragAction.copy);
+            return K.act(a);
+        }
+    }
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 6px;
+        spacing: 8px;
+        VerticalLayout {
+            alignment: center;
+            Icon {
+                source: K.icon(root.info.kind);
+                tint: K.color(root.info.kind);
+            }
+        }
+        Text {
+            text: root.info.title;
+            vertical-alignment: center;
+            overflow: elide;
+            horizontal-stretch: 1;
+            color: root.active ? Theme.text : Theme.text-dim;
+            font-weight: root.active ? 500 : 400;
+        }
+        VerticalLayout {
+            alignment: center;
+            close := Rectangle {
+                width: 22px;
+                height: 22px;
+                border-radius: 6px;
+                background: cta.has-hover ? Theme.press : transparent;
+                opacity: root.active || ta.has-hover || cta.has-hover ? 1 : 0;
+                cta := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { S.tab-close(root.index); }
+                }
+                Icon {
+                    source: Icons.x;
+                    size: 13px;
+                    tint: Theme.text-dim;
+                }
+            }
+        }
+    }
+}
+
+component TabStrip inherits Rectangle {
+    height: 42px;
+    background: Theme.bg;
+    HorizontalLayout {
+        padding-left: 8px;
+        padding-top: 6px;
+        spacing: 2px;
+        alignment: start;
+        for t[i] in S.tabs: TabItem {
+            info: t;
+            index: i;
+            active: i == S.active-tab;
+        }
+        VerticalLayout {
+            alignment: center;
+            padding-bottom: 2px;
+            ToolButton {
+                icon: Icons.plus;
+tip: @tr("New tab (Ctrl+T)");
+                tint: Theme.text-dim;
+                clicked => { S.tab-new(); }
+            }
+        }
+    }
+}
+
+// ───────────────────────── address bar + search ─────────────────────────
+
+component CrumbButton inherits Rectangle {
+    in property <string> label;
+    in property <bool> last;
+    callback clicked();
+    height: 28px;
+    border-radius: 6px;
+    min-width: 24px;
+    background: ta.has-hover ? Theme.hover : transparent;
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    HorizontalLayout {
+        padding-left: 6px;
+        padding-right: 6px;
+        Text {
+            text: root.label;
+            vertical-alignment: center;
+            overflow: elide;
+            color: root.last ? Theme.text : Theme.text-dim;
+            font-weight: root.last ? 500 : 400;
+        }
+    }
+}
+
+component AddressBar inherits Rectangle {
+    height: 36px;
+    border-radius: 9px;
+    background: Theme.raised;
+    border-width: 1px;
+    border-color: S.edit-path ? Theme.accent : Theme.border;
+    if !S.edit-path: HorizontalLayout {
+        padding-left: 8px;
+        padding-right: 4px;
+        spacing: 2px;
+        VerticalLayout {
+            alignment: center;
+            Icon {
+                source: K.icon(S.loc-kind);
+                tint: K.color(S.loc-kind);
+            }
+        }
+        for c[i] in S.crumbs: HorizontalLayout {
+            spacing: 0px;
+            if i > 0: VerticalLayout {
+                alignment: center;
+                Icon {
+                    source: Icons.chevron-right;
+                    size: 13px;
+                    tint: Theme.text-faint;
+                }
+            }
+            VerticalLayout {
+                alignment: center;
+                CrumbButton {
+                    label: c.label;
+                    last: i == S.crumbs.length - 1;
+                    clicked => { S.crumb-clicked(c.index); }
+                }
+            }
+        }
+        Rectangle {
+            horizontal-stretch: 1;
+            TouchArea {
+                mouse-cursor: text;
+                clicked => { S.edit-path = true; }
+            }
+        }
+        if S.git-branch != "": VerticalLayout {
+            alignment: center;
+            Rectangle {
+                height: 24px;
+                border-radius: 12px;
+                background: #F0503322;
+                HorizontalLayout {
+                    padding-left: 8px;
+                    padding-right: 10px;
+                    spacing: 5px;
+                    VerticalLayout {
+                        alignment: center;
+                        Icon {
+                            source: Icons.git-branch;
+                            size: 13px;
+                            tint: #F05033;
+                        }
+                    }
+                    Text {
+                        text: S.git-branch;
+                        vertical-alignment: center;
+                        color: #F28C76;
+                        font-size: 12px;
+                        font-weight: 500;
+                    }
+                }
+            }
+        }
+    }
+    if S.edit-path: FocusScope {
+        key-pressed(e) => {
+            if e.text == Key.Escape {
+                S.edit-path = false;
+                return accept;
+            }
+            return reject;
+        }
+        HorizontalLayout {
+            padding-left: 12px;
+            padding-right: 12px;
+            path-input := TextInput {
+                text: S.path-text;
+                vertical-alignment: center;
+                color: Theme.text;
+                selection-background-color: Theme.selection-strong;
+                single-line: true;
+                init => {
+                    self.focus();
+                    self.select-all();
+                }
+                accepted => { S.path-entered(self.text); }
+                changed has-focus => {
+                    if !self.has-focus {
+                        S.edit-path = false;
+                    }
+                }
+            }
+        }
+    }
+}
+
+component SearchBox inherits Rectangle {
+    height: 36px;
+    border-radius: 9px;
+    background: Theme.raised;
+    border-width: 1px;
+    border-color: input.has-focus ? Theme.accent : Theme.border;
+    public function focus-search() {
+        input.focus();
+        input.select-all();
+    }
+    FocusScope {
+        key-pressed(e) => {
+            if e.text == Key.Escape {
+                S.search-text = "";
+                S.search-changed("");
+                return accept;
+            }
+            return reject;
+        }
+        HorizontalLayout {
+            padding-left: 10px;
+            padding-right: 6px;
+            spacing: 8px;
+            VerticalLayout {
+                alignment: center;
+                Icon {
+                    source: Icons.search;
+                    size: 15px;
+                    tint: input.has-focus ? Theme.accent : Theme.text-faint;
+                }
+            }
+            Rectangle {
+                horizontal-stretch: 1;
+                input := TextInput {
+                    width: parent.width;
+                    height: parent.height;
+                    text <=> S.search-text;
+                    vertical-alignment: center;
+                    color: Theme.text;
+                    single-line: true;
+                    selection-background-color: Theme.selection-strong;
+                    edited => { S.search-changed(self.text); }
+                    accepted => { S.search-submitted(self.text); }
+                }
+                if S.search-text == "": Text {
+                    width: parent.width;
+                    height: parent.height;
+                    text: input.has-focus ? @tr("Filter · Enter searches subfolders") : S.search-placeholder;
+                    color: Theme.text-faint;
+                    vertical-alignment: center;
+                    overflow: elide;
+                }
+            }
+            if S.search-text != "": VerticalLayout {
+                alignment: center;
+                Rectangle {
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 6px;
+                    background: xta.has-hover ? Theme.hover : transparent;
+                    xta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => {
+                            S.search-text = "";
+                            S.search-changed("");
+                        }
+                    }
+                    Icon {
+                        source: Icons.x;
+                        size: 13px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ───────────────────────── sidebar ─────────────────────────
+
+component SectionTitle inherits Text {
+    color: Theme.text-faint;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    height: 30px;
+    vertical-alignment: bottom;
+}
+
+component SideRow inherits Rectangle {
+    in property <SideItem> item;
+    property <bool> active: S.side-active == root.item.path;
+    property <bool> has-usage: root.item.usage >= 0;
+    property <bool> is-tag: root.item.kind == 27;
+    height: has-usage ? 46px : 34px;
+    border-radius: 8px;
+    background: drop.has-drag ? Theme.accent.with-alpha(0.25) : root.active ? Theme.selection : ta.has-hover ? Theme.hover : transparent;
+    border-width: drop.has-drag ? 1px : 0px;
+    border-color: Theme.accent;
+    drop := DropArea {
+        enabled: root.item.kind != 15;
+        can-drop(ev) => {
+            return K.act(S.can-drop-at(root.item.path, ev.data, ev.proposed-action == DragAction.copy));
+        }
+        dropped(ev) => {
+            let a = S.can-drop-at(root.item.path, ev.data, ev.proposed-action == DragAction.copy);
+            S.drop-at(root.item.path, ev.data, ev.proposed-action == DragAction.copy);
+            return K.act(a);
+        }
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        pointer-event(e) => {
+            if e.kind == PointerEventKind.down {
+                if e.button == PointerEventButton.middle || (e.button == PointerEventButton.left && (e.modifiers.control || e.modifiers.meta)) {
+                    S.open-path-new-tab(root.item.path);
+                } else if e.button == PointerEventButton.right {
+                    S.side-menu(root.item.path, root.absolute-position.x + self.mouse-x, root.absolute-position.y + self.mouse-y);
+                }
+            }
+        }
+        clicked => { S.open-path(root.item.path); }
+    }
+    Rectangle {
+        x: 0;
+        width: 3px;
+        height: 16px;
+        border-radius: 2px;
+        background: Theme.accent;
+        visible: root.active;
+    }
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 10px;
+        spacing: 10px;
+        if !root.is-tag: VerticalLayout {
+            alignment: center;
+            Icon {
+                source: K.icon(root.item.kind);
+                tint: root.active ? Theme.accent : root.item.kind == 0 ? Theme.folder : Theme.text-dim;
+                size: 17px;
+            }
+        }
+        if root.is-tag: VerticalLayout {
+            alignment: center;
+            Rectangle {
+                width: 17px;
+                height: 17px;
+                Rectangle {
+                    width: 11px;
+                    height: 11px;
+                    border-radius: 6px;
+                    background: root.item.color;
+                }
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            spacing: 5px;
+            HorizontalLayout {
+                Text {
+                    text: root.item.label;
+                    overflow: elide;
+                    horizontal-stretch: 1;
+                    color: Theme.text;
+                    font-weight: root.active ? 500 : 400;
+                }
+                if root.is-tag: Text {
+                    text: root.item.sub;
+                    color: Theme.text-faint;
+                    font-size: 11px;
+                }
+            }
+            if root.has-usage: Rectangle {
+                height: 4px;
+                border-radius: 2px;
+                background: Theme.raised;
+                Rectangle {
+                    x: 0;
+                    width: parent.width * clamp(root.item.usage, 0, 1);
+                    border-radius: 2px;
+                    background: root.item.usage > 0.9 ? Theme.danger : Theme.accent;
+                }
+            }
+        }
+    }
+}
+
+component Sidebar inherits Rectangle {
+    width: 236px;
+    background: Theme.bg;
+    ScrollView {
+        VerticalLayout {
+            padding-left: 8px;
+            padding-right: 8px;
+            padding-top: 4px;
+            padding-bottom: 12px;
+            spacing: 1px;
+            alignment: start;
+            SideRow {
+                item: { label: @tr("Home"), kind: 15, path: "::home", usage: -1, sub: "", color: transparent };
+            }
+            SectionTitle {
+                text: @tr("QUICK ACCESS");
+            }
+            for q in S.quick: SideRow {
+                item: q;
+            }
+            SectionTitle {
+                text: @tr("DRIVES");
+            }
+            for d in S.drives: SideRow {
+                item: d;
+            }
+            SectionTitle {
+                text: @tr("NETWORK");
+            }
+            for n in S.network: SideRow {
+                item: n;
+            }
+            if S.tag-items.length > 0: SectionTitle {
+                text: @tr("TAGS");
+            }
+            for t in S.tag-items: SideRow {
+                item: t;
+            }
+            if S.places.length > 0: SectionTitle {
+                text: @tr("MORE");
+            }
+            for p in S.places: SideRow {
+                item: p;
+            }
+        }
+    }
+}
+
+// ───────────────────────── file views ─────────────────────────
+
+component FileRowView inherits Rectangle {
+    in property <FileRow> item;
+    in property <int> index;
+    in property <int> pane;
+    in property <bool> search-mode;
+    in property <bool> c-date: true;
+    in property <bool> c-created;
+    in property <bool> c-type: true;
+    in property <bool> c-size: true;
+    in property <bool> compact;
+    // selection box: press on the blank part of a row and drag
+    callback m-down(length, length, bool);
+    callback m-move(length, length);
+    callback m-up();
+    property <bool> editing: S.rename-pane == root.pane && S.rename-index == root.index;
+    property <bool> real-icon: root.item.has-thumb && (root.item.kind == 9 || root.item.kind == 12);
+    // the part you grab to drag files: icon + name (like Explorer); the rest draws a selection box
+    property <length> grab-w: 40px + min(name-text.preferred-width + 14px, max(60px, root.width * 0.55));
+    height: 30px;
+    border-radius: 6px;
+    background: drop.has-drag ? Theme.accent.with-alpha(0.28) : root.item.selected ? Theme.selection : (bg.has-hover || ta.has-hover) ? Theme.hover : transparent;
+    border-width: drop.has-drag ? 1px : 0px;
+    border-color: Theme.accent;
+    animate background { duration: 70ms; }
+    bg := TouchArea {
+        pointer-event(e) => {
+            if e.kind == PointerEventKind.down {
+                if e.button == PointerEventButton.left {
+                    S.row-down(root.pane, root.index, e.modifiers.control || e.modifiers.meta, e.modifiers.shift);
+                    root.m-down(self.mouse-x, self.mouse-y, e.modifiers.control || e.modifiers.meta || e.modifiers.shift);
+                } else if e.button == PointerEventButton.right {
+                    S.row-right(root.pane, root.index, root.absolute-position.x + self.mouse-x, root.absolute-position.y + self.mouse-y);
+                } else if e.button == PointerEventButton.middle {
+                    S.row-middle(root.pane, root.index);
+                }
+            } else if e.kind == PointerEventKind.up && e.button == PointerEventButton.left {
+                root.m-up();
+            }
+        }
+        moved => {
+            if self.pressed {
+                root.m-move(self.mouse-x, self.mouse-y);
+            }
+        }
+        clicked => { S.row-click(root.pane, root.index); }
+        double-clicked => { S.row-open(root.pane, root.index); }
+    }
+    DragArea {
+        x: 0;
+        width: root.grab-w;
+        height: root.height;
+        data: S.drag-data;
+        allow-move: true;
+        allow-copy: true;
+        drag-image: Icons.drag-badge;
+        drag-image-offset-x: 8;
+        drag-image-offset-y: 8;
+        ta := TouchArea {
+            pointer-event(e) => {
+                if e.kind == PointerEventKind.down {
+                    if e.button == PointerEventButton.left {
+                        S.row-down(root.pane, root.index, e.modifiers.control || e.modifiers.meta, e.modifiers.shift);
+                    } else if e.button == PointerEventButton.right {
+                        S.row-right(root.pane, root.index, root.absolute-position.x + self.mouse-x, root.absolute-position.y + self.mouse-y);
+                    } else if e.button == PointerEventButton.middle {
+                        S.row-middle(root.pane, root.index);
+                    }
+                }
+            }
+            clicked => { S.row-click(root.pane, root.index); }
+            double-clicked => { S.row-open(root.pane, root.index); }
+        }
+    }
+    drop := DropArea {
+        enabled: root.item.kind == 0;
+        can-drop(ev) => {
+            return K.act(S.can-drop-at("::row:" + root.pane + ":" + root.index, ev.data, ev.proposed-action == DragAction.copy));
+        }
+        dropped(ev) => {
+            let a = S.can-drop-at("::row:" + root.pane + ":" + root.index, ev.data, ev.proposed-action == DragAction.copy);
+            S.drop-at("::row:" + root.pane + ":" + root.index, ev.data, ev.proposed-action == DragAction.copy);
+            return K.act(a);
+        }
+    }
+    Rectangle {
+        x: 0;
+        y: (parent.height - self.height) / 2;
+        width: 3px;
+        height: root.item.selected ? 16px : 0px;
+        border-radius: 2px;
+        background: Theme.accent;
+        animate height { duration: 120ms; easing: ease-out; }
+    }
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 12px;
+        spacing: 12px;
+        VerticalLayout {
+            alignment: center;
+            if !root.real-icon: Icon {
+                source: K.icon(root.item.kind);
+                tint: K.color(root.item.kind);
+                size: 18px;
+                opacity: root.item.dim ? 0.5 : 1;
+            }
+            if root.real-icon: Image {
+                source: root.item.thumb;
+                width: 18px;
+                height: 18px;
+                image-fit: contain;
+                opacity: root.item.dim ? 0.5 : 1;
+            }
+        }
+        HorizontalLayout {
+            horizontal-stretch: 1;
+            min-width: 80px;
+            spacing: 4px;
+            name-text := Text {
+                text: root.item.name;
+                horizontal-stretch: 0;
+                min-width: 20px;
+                overflow: elide;
+                vertical-alignment: center;
+                color: root.item.dim ? Theme.text-dim : Theme.text;
+                opacity: root.editing ? 0 : 1;
+            }
+            for c in root.item.tags: VerticalLayout {
+                alignment: center;
+                Rectangle {
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 4px;
+                    background: c;
+                }
+            }
+            Rectangle {
+                horizontal-stretch: 1;
+            }
+        }
+        if root.search-mode: Text {
+            text: root.item.location;
+            width: S.col-w-loc;
+            overflow: elide;
+            vertical-alignment: center;
+            color: Theme.text-faint;
+            font-size: 12px;
+        }
+        if root.c-date: Text {
+            text: root.item.date;
+            width: S.col-w-date;
+            overflow: elide;
+            vertical-alignment: center;
+            color: Theme.text-dim;
+            font-size: 12px;
+        }
+        if root.c-created: Text {
+            text: root.item.created;
+            width: S.col-w-created;
+            overflow: elide;
+            vertical-alignment: center;
+            color: Theme.text-dim;
+            font-size: 12px;
+        }
+        if root.c-type: Text {
+            text: root.item.type-name;
+            width: S.col-w-type;
+            overflow: elide;
+            vertical-alignment: center;
+            color: Theme.text-dim;
+            font-size: 12px;
+        }
+        if root.c-size: Text {
+            text: root.item.size;
+            width: S.col-w-size;
+            horizontal-alignment: right;
+            vertical-alignment: center;
+            color: Theme.text-dim;
+            font-size: 12px;
+        }
+        if root.compact && root.item.kind == 0: VerticalLayout {
+            alignment: center;
+            Icon {
+                source: Icons.chevron-right;
+                size: 13px;
+                tint: Theme.text-faint;
+            }
+        }
+    }
+    // rename in place
+    if root.editing: Rectangle {
+        x: 36px;
+        y: 2px;
+        height: root.height - 4px;
+        width: min(max(240px, name-text.preferred-width + 60px), root.width - self.x - 8px);
+        border-radius: 5px;
+        background: Theme.surface;
+        border-width: 1px;
+        border-color: Theme.accent;
+        ri := TextInput {
+            x: 7px;
+            width: parent.width - 14px;
+            height: parent.height;
+            vertical-alignment: center;
+            single-line: true;
+            color: Theme.text;
+            selection-background-color: Theme.selection-strong;
+            text: S.rename-text;
+            init => {
+                self.focus();
+                self.set-selection-offsets(0, S.rename-sel-end);
+            }
+            accepted => { S.rename-commit(self.text, true); }
+            changed has-focus => {
+                if !self.has-focus {
+                    S.rename-commit(self.text, false);
+                }
+            }
+        }
+    }
+}
+
+component HeaderCell inherits Rectangle {
+    in property <string> text;
+    in property <int> key;
+    // which width this column's grip changes: 0 date · 1 created · 2 type · 3 size · 4 location; -1 none
+    in property <int> grip-of: -1;
+    in property <TextHorizontalAlignment> align: left;
+    property <length> start-w;
+    property <length> start-x;
+    height: 30px;
+    border-radius: 6px;
+    background: ta.has-hover ? Theme.hover : transparent;
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        pointer-event(e) => {
+            if e.kind == PointerEventKind.down && e.button == PointerEventButton.right {
+                S.header-menu(self.absolute-position.x + self.mouse-x, self.absolute-position.y + self.mouse-y);
+            }
+        }
+        clicked => { S.sort-by(root.key); }
+    }
+    HorizontalLayout {
+        padding-left: root.grip-of >= 0 ? 6px : 0px;
+        spacing: 4px;
+        alignment: root.align == TextHorizontalAlignment.right ? end : start;
+        Text {
+            text: root.text;
+            vertical-alignment: center;
+            overflow: elide;
+            color: S.sort-key == root.key ? Theme.text : Theme.text-faint;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        if S.sort-key == root.key: VerticalLayout {
+            alignment: center;
+            Icon {
+                source: Icons.arrow-up;
+                transform-rotation: S.sort-asc ? 0deg : 180deg;
+                size: 12px;
+                tint: Theme.accent;
+            }
+        }
+    }
+    // drag the left edge to resize this column (the name column takes up the rest)
+    if root.grip-of >= 0: Rectangle {
+        x: 0;
+        width: 7px;
+        height: root.height;
+        Rectangle {
+            x: 0;
+            y: 7px;
+            width: grip.has-hover || grip.pressed ? 2px : 1px;
+            height: parent.height - 14px;
+            background: grip.has-hover || grip.pressed ? Theme.accent : Theme.border;
+        }
+        grip := TouchArea {
+            mouse-cursor: col-resize;
+            pointer-event(e) => {
+                if e.kind == PointerEventKind.down && e.button == PointerEventButton.left {
+                    root.start-w = root.width;
+                    root.start-x = self.absolute-position.x + self.mouse-x;
+                } else if e.kind == PointerEventKind.up {
+                    S.col-resized();
+                }
+            }
+            moved => {
+                if self.pressed {
+                    let w = clamp(root.start-w + root.start-x - (self.absolute-position.x + self.mouse-x), 56px, 600px);
+                    if root.grip-of == 0 {
+                        S.col-w-date = w;
+                    } else if root.grip-of == 1 {
+                        S.col-w-created = w;
+                    } else if root.grip-of == 2 {
+                        S.col-w-type = w;
+                    } else if root.grip-of == 3 {
+                        S.col-w-size = w;
+                    } else {
+                        S.col-w-loc = w;
+                    }
+                }
+            }
+        }
+    }
+}
+
+component DetailsView inherits Rectangle {
+    in property <[FileRow]> files;
+    in property <int> pane;
+    in property <bool> search-mode;
+    in property <bool> bin;
+    in property <bool> compact;
+    min-width: 0px;
+    preferred-width: 400px;
+    // columns that fit, in priority order: size, date, type, created (the name keeps ≥ 200px)
+    property <length> avail: root.width - 12px - 40px - 12px - 170px;
+    property <length> u0: root.search-mode ? S.col-w-loc + 12px : 0px;
+    property <bool> c-size: !root.compact && S.col-size && root.avail - root.u0 >= S.col-w-size + 12px;
+    property <length> u1: root.u0 + (root.c-size ? S.col-w-size + 12px : 0px);
+    property <bool> c-date: !root.compact && S.col-date && root.avail - root.u1 >= S.col-w-date + 12px;
+    property <length> u2: root.u1 + (root.c-date ? S.col-w-date + 12px : 0px);
+    property <bool> c-type: !root.compact && S.col-type && root.avail - root.u2 >= S.col-w-type + 12px;
+    property <length> u3: root.u2 + (root.c-type ? S.col-w-type + 12px : 0px);
+    property <bool> c-created: !root.compact && S.col-created && !root.bin && root.avail - root.u3 >= S.col-w-created + 12px;
+    property <length> row-h: 30px;
+    property <int> ev: S.ensure-gen;
+    changed ev => {
+        if S.ensure-pane == root.pane {
+            if S.ensure-index < 0 {
+                lv.content-y = 0;
+            } else {
+                if S.ensure-index * root.row-h < -lv.content-y {
+                    lv.content-y = -(S.ensure-index * root.row-h);
+                } else if (S.ensure-index + 1) * root.row-h > -lv.content-y + lv.visible-height {
+                    lv.content-y = -((S.ensure-index + 1) * root.row-h - lv.visible-height);
+                }
+            }
+        }
+    }
+
+    // ── selection box (list-content coordinates) ──
+    property <bool> mq-armed;
+    property <bool> mq-active;
+    property <bool> mq-add;
+    property <length> mq-x0;
+    property <length> mq-y0;
+    property <length> mq-x1;
+    property <length> mq-y1;
+    property <length> mq-vy: root.mq-y1 + lv.content-y;
+    function mq-down(x: length, y: length, add: bool) {
+        root.mq-armed = true;
+        root.mq-active = false;
+        root.mq-add = add;
+        root.mq-x0 = x;
+        root.mq-y0 = y;
+        root.mq-x1 = x;
+        root.mq-y1 = y;
+    }
+    function mq-send() {
+        S.marquee(root.pane, root.mq-x0 / 1px, root.mq-y0 / 1px, root.mq-x1 / 1px, root.mq-y1 / 1px, 1, 100000, root.row-h / 1px, 100000, root.row-h / 1px, 0);
+    }
+    function mq-move(x: length, y: length) {
+        if !root.mq-armed {
+            return;
+        }
+        root.mq-x1 = x;
+        root.mq-y1 = y;
+        if !root.mq-active && (abs(x - root.mq-x0) > 6px || abs(y - root.mq-y0) > 6px) {
+            root.mq-active = true;
+            S.marquee-begin(root.pane, root.mq-add);
+        }
+        if root.mq-active {
+            root.mq-send();
+        }
+    }
+    function mq-up() {
+        if root.mq-active {
+            S.marquee-end();
+        }
+        root.mq-armed = false;
+        root.mq-active = false;
+    }
+    // scroll while the box is dragged past the top / bottom edge
+    Timer {
+        interval: 30ms;
+        running: root.mq-active && (root.mq-vy < 14px || root.mq-vy > lv.visible-height - 14px);
+        triggered => {
+            let before = lv.content-y;
+            if root.mq-vy < 14px {
+                lv.content-y = min(0px, lv.content-y + 22px);
+            } else {
+                lv.content-y = max(min(0px, lv.visible-height - lv.content-height), lv.content-y - 22px);
+            }
+            root.mq-y1 = root.mq-y1 + (before - lv.content-y);
+            root.mq-send();
+        }
+    }
+
+    VerticalLayout {
+        padding-left: 6px;
+        padding-right: 6px;
+        if !root.compact: Rectangle {
+            height: 34px;
+            TouchArea {
+                pointer-event(e) => {
+                    if e.kind == PointerEventKind.down && e.button == PointerEventButton.right {
+                        S.header-menu(self.absolute-position.x + self.mouse-x, self.absolute-position.y + self.mouse-y);
+                    }
+                }
+            }
+            HorizontalLayout {
+                padding-left: 10px + 18px + 12px;
+                padding-right: 12px;
+                spacing: 12px;
+                HeaderCell {
+                    text: @tr("Name");
+                    key: 0;
+                    horizontal-stretch: 1;
+                }
+                if root.search-mode: HeaderCell {
+                    text: root.bin ? @tr("Original location") : @tr("Location");
+                    key: 4;
+                    grip-of: 4;
+                    width: S.col-w-loc;
+                }
+                if root.c-date: HeaderCell {
+                    text: root.bin ? @tr("Date deleted") : @tr("Date modified");
+                    key: 1;
+                    grip-of: 0;
+                    width: S.col-w-date;
+                }
+                if root.c-created: HeaderCell {
+                    text: @tr("Date created");
+                    key: 5;
+                    grip-of: 1;
+                    width: S.col-w-created;
+                }
+                if root.c-type: HeaderCell {
+                    text: @tr("Type");
+                    key: 2;
+                    grip-of: 2;
+                    width: S.col-w-type;
+                }
+                if root.c-size: HeaderCell {
+                    text: @tr("Size");
+                    key: 3;
+                    grip-of: 3;
+                    width: S.col-w-size;
+                    align: right;
+                }
+            }
+            Rectangle {
+                y: parent.height - 1px;
+                height: 1px;
+                background: Theme.border;
+            }
+        }
+        Rectangle {
+            vertical-stretch: 1;
+            clip: true;
+            lv := ListView {
+                for f[i] in root.files: FileRowView {
+                    item: f;
+                    index: i;
+                    pane: root.pane;
+                    search-mode: root.search-mode;
+                    c-date: root.c-date;
+                    c-created: root.c-created;
+                    c-type: root.c-type;
+                    c-size: root.c-size;
+                    compact: root.compact;
+                    m-down(x, y, add) => { root.mq-down(x, y + i * root.row-h, add); }
+                    m-move(x, y) => { root.mq-move(x, y + i * root.row-h); }
+                    m-up() => { root.mq-up(); }
+                }
+            }
+            // empty space below the last row: click clears the selection, drag draws a selection box,
+            // right-click opens the folder menu
+            TouchArea {
+                y: max(0px, root.files.length * root.row-h + lv.content-y);
+                height: max(0px, parent.height - self.y);
+                pointer-event(e) => {
+                    if e.kind == PointerEventKind.down {
+                        if e.button == PointerEventButton.left {
+                            S.bg-down(root.pane, e.modifiers.control || e.modifiers.meta || e.modifiers.shift);
+                            root.mq-down(self.mouse-x, self.y - lv.content-y + self.mouse-y, e.modifiers.control || e.modifiers.meta || e.modifiers.shift);
+                        } else if e.button == PointerEventButton.right {
+                            S.bg-menu(root.pane, self.absolute-position.x + self.mouse-x, self.absolute-position.y + self.mouse-y);
+                        }
+                    } else if e.kind == PointerEventKind.up && e.button == PointerEventButton.left {
+                        root.mq-up();
+                    }
+                }
+                moved => {
+                    if self.pressed {
+                        root.mq-move(self.mouse-x, self.y - lv.content-y + self.mouse-y);
+                    }
+                }
+            }
+            if root.mq-active: Rectangle {
+                x: min(root.mq-x0, root.mq-x1);
+                y: min(root.mq-y0, root.mq-y1) + lv.content-y;
+                width: abs(root.mq-x1 - root.mq-x0);
+                height: abs(root.mq-y1 - root.mq-y0);
+                background: Theme.accent.with-alpha(0.12);
+                border-width: 1px;
+                border-color: Theme.accent.with-alpha(0.75);
+                border-radius: 3px;
+            }
+        }
+    }
+}
+
+component Tile inherits Rectangle {
+    in property <FileRow> item;
+    in property <int> index;
+    in property <int> pane;
+    in property <length> tw: 112px;
+    in property <length> th: 118px;
+    in property <length> art-h: 60px;
+    in property <length> icon-size: 44px;
+    width: root.tw;
+    height: root.th;
+    border-radius: 10px;
+    background: drop.has-drag ? Theme.accent.with-alpha(0.28) : root.item.selected ? Theme.selection : ta.has-hover ? Theme.hover : transparent;
+    border-width: drop.has-drag || root.item.selected ? 1px : 0px;
+    border-color: drop.has-drag ? Theme.accent : Theme.selection-strong;
+    animate background { duration: 70ms; }
+    DragArea {
+        data: S.drag-data;
+        allow-move: true;
+        allow-copy: true;
+        drag-image: Icons.drag-badge;
+        drag-image-offset-x: 8;
+        drag-image-offset-y: 8;
+        ta := TouchArea {
+            pointer-event(e) => {
+                if e.kind == PointerEventKind.down {
+                    if e.button == PointerEventButton.left {
+                        S.row-down(root.pane, root.index, e.modifiers.control || e.modifiers.meta, e.modifiers.shift);
+                    } else if e.button == PointerEventButton.right {
+                        S.row-right(root.pane, root.index, root.absolute-position.x + self.mouse-x, root.absolute-position.y + self.mouse-y);
+                    } else if e.button == PointerEventButton.middle {
+                        S.row-middle(root.pane, root.index);
+                    }
+                }
+            }
+            clicked => { S.row-click(root.pane, root.index); }
+            double-clicked => { S.row-open(root.pane, root.index); }
+        }
+    }
+    drop := DropArea {
+        enabled: root.item.kind == 0;
+        can-drop(ev) => {
+            return K.act(S.can-drop-at("::row:" + root.pane + ":" + root.index, ev.data, ev.proposed-action == DragAction.copy));
+        }
+        dropped(ev) => {
+            let a = S.can-drop-at("::row:" + root.pane + ":" + root.index, ev.data, ev.proposed-action == DragAction.copy);
+            S.drop-at("::row:" + root.pane + ":" + root.index, ev.data, ev.proposed-action == DragAction.copy);
+            return K.act(a);
+        }
+    }
+    property <bool> editing: S.rename-pane == root.pane && S.rename-index == root.index;
+    VerticalLayout {
+        padding: 8px;
+        padding-top: 10px;
+        spacing: 6px;
+        alignment: start;
+        HorizontalLayout {
+            alignment: center;
+            height: root.art-h;
+            if !root.item.has-thumb: VerticalLayout {
+                alignment: center;
+                Icon {
+                    source: K.icon(root.item.kind);
+                    tint: K.color(root.item.kind);
+                    size: root.item.kind == 0 ? root.icon-size * 1.18 : root.icon-size;
+                    opacity: root.item.dim ? 0.5 : 1;
+                }
+            }
+            if root.item.has-thumb: Rectangle {
+                width: root.tw - 24px;
+                height: root.art-h;
+                border-radius: 6px;
+                clip: true;
+                Image {
+                    source: root.item.thumb;
+                    image-fit: contain;
+                    width: parent.width;
+                    height: parent.height;
+                    opacity: root.item.dim ? 0.5 : 1;
+                }
+                // videos get a little play badge
+                if root.item.kind == 3: Rectangle {
+                    x: (parent.width - self.width) / 2;
+                    y: (parent.height - self.height) / 2;
+                    width: min(28px, parent.height * 0.45);
+                    height: self.width;
+                    border-radius: self.width / 2;
+                    background: #000000A0;
+                    Text {
+                        text: "▶";
+                        color: #FFFFFF;
+                        font-size: parent.width * 0.42;
+                        x: (parent.width - self.width) / 2 + 1px;
+                    }
+                }
+            }
+        }
+        Text {
+            text: root.item.name;
+            wrap: word-wrap;
+            overflow: elide;
+            horizontal-alignment: center;
+            height: 32px;
+            font-size: 12px;
+            color: root.item.dim ? Theme.text-dim : Theme.text;
+            opacity: root.editing ? 0 : 1;
+        }
+    }
+    if root.editing: Rectangle {
+        x: 3px;
+        y: root.th - 42px;
+        width: root.tw - 6px;
+        height: 28px;
+        border-radius: 5px;
+        background: Theme.surface;
+        border-width: 1px;
+        border-color: Theme.accent;
+        TextInput {
+            x: 5px;
+            width: parent.width - 10px;
+            height: parent.height;
+            vertical-alignment: center;
+            single-line: true;
+            font-size: 12px;
+            color: Theme.text;
+            selection-background-color: Theme.selection-strong;
+            text: S.rename-text;
+            init => {
+                self.focus();
+                self.set-selection-offsets(0, S.rename-sel-end);
+            }
+            accepted => { S.rename-commit(self.text, true); }
+            changed has-focus => {
+                if !self.has-focus {
+                    S.rename-commit(self.text, false);
+                }
+            }
+        }
+    }
+    if root.item.tags.length > 0: HorizontalLayout {
+        x: 8px;
+        y: 8px;
+        spacing: 3px;
+        for c in root.item.tags: Rectangle {
+            width: 9px;
+            height: 9px;
+            border-radius: 5px;
+            background: c;
+            border-width: 1px;
+            border-color: Theme.surface;
+        }
+    }
+}
+
+component GridView inherits Rectangle {
+    in property <[FileRow]> files;
+    in property <int> pane;
+    property <length> tw: S.grid-size == 0 ? 92px : S.grid-size == 2 ? 168px : 112px;
+    property <length> th: S.grid-size == 0 ? 96px : S.grid-size == 2 ? 176px : 118px;
+    property <length> art: S.grid-size == 0 ? 40px : S.grid-size == 2 ? 112px : 60px;
+    property <length> ic: S.grid-size == 0 ? 30px : S.grid-size == 2 ? 72px : 44px;
+    property <length> tile-w: root.tw + 4px;
+    property <length> tile-h: root.th + 4px;
+    property <int> cols: max(1, floor((root.width - 24px) / root.tile-w));
+    changed cols => {
+        if root.pane == S.active-pane {
+            S.grid-cols = root.cols;
+        }
+    }
+    init => {
+        if root.pane == S.active-pane {
+            S.grid-cols = root.cols;
+        }
+    }
+    property <int> ev: S.ensure-gen;
+    changed ev => {
+        if S.ensure-pane == root.pane {
+            if S.ensure-index < 0 {
+                lv.content-y = 0;
+            } else {
+                if floor(S.ensure-index / root.cols) * root.tile-h < -lv.content-y {
+                    lv.content-y = -(floor(S.ensure-index / root.cols) * root.tile-h);
+                } else if (floor(S.ensure-index / root.cols) + 1) * root.tile-h > -lv.content-y + lv.visible-height {
+                    lv.content-y = -((floor(S.ensure-index / root.cols) + 1) * root.tile-h - lv.visible-height);
+                }
+            }
+        }
+    }
+
+    // ── selection box (list-content coordinates) ──
+    property <bool> mq-armed;
+    property <bool> mq-active;
+    property <bool> mq-add;
+    property <length> mq-x0;
+    property <length> mq-y0;
+    property <length> mq-x1;
+    property <length> mq-y1;
+    property <length> mq-vy: root.mq-y1 + lv.content-y;
+    function mq-down(x: length, y: length, add: bool) {
+        root.mq-armed = true;
+        root.mq-active = false;
+        root.mq-add = add;
+        root.mq-x0 = x;
+        root.mq-y0 = y;
+        root.mq-x1 = x;
+        root.mq-y1 = y;
+    }
+    function mq-send() {
+        S.marquee(root.pane, root.mq-x0 / 1px, root.mq-y0 / 1px, root.mq-x1 / 1px, root.mq-y1 / 1px, root.cols, root.tile-w / 1px, root.tile-h / 1px, root.tw / 1px, root.th / 1px, 10);
+    }
+    function mq-move(x: length, y: length) {
+        if !root.mq-armed {
+            return;
+        }
+        root.mq-x1 = x;
+        root.mq-y1 = y;
+        if !root.mq-active && (abs(x - root.mq-x0) > 6px || abs(y - root.mq-y0) > 6px) {
+            root.mq-active = true;
+            S.marquee-begin(root.pane, root.mq-add);
+        }
+        if root.mq-active {
+            root.mq-send();
+        }
+    }
+    function mq-up() {
+        if root.mq-active {
+            S.marquee-end();
+        }
+        root.mq-armed = false;
+        root.mq-active = false;
+    }
+    Timer {
+        interval: 30ms;
+        running: root.mq-active && (root.mq-vy < 14px || root.mq-vy > lv.visible-height - 14px);
+        triggered => {
+            let before = lv.content-y;
+            if root.mq-vy < 14px {
+                lv.content-y = min(0px, lv.content-y + 24px);
+            } else {
+                lv.content-y = max(min(0px, lv.visible-height - lv.content-height), lv.content-y - 24px);
+            }
+            root.mq-y1 = root.mq-y1 + (before - lv.content-y);
+            root.mq-send();
+        }
+    }
+
+    clip: true;
+    lv := ListView {
+        for r in ceil(root.files.length / root.cols): Rectangle {
+            height: root.tile-h;
+            // gaps between tiles: click clears, drag draws a selection box
+            TouchArea {
+                pointer-event(e) => {
+                    if e.kind == PointerEventKind.down {
+                        if e.button == PointerEventButton.left {
+                            S.bg-down(root.pane, e.modifiers.control || e.modifiers.meta || e.modifiers.shift);
+                            root.mq-down(self.mouse-x, r * root.tile-h + self.mouse-y, e.modifiers.control || e.modifiers.meta || e.modifiers.shift);
+                        } else if e.button == PointerEventButton.right {
+                            S.bg-menu(root.pane, self.absolute-position.x + self.mouse-x, self.absolute-position.y + self.mouse-y);
+                        }
+                    } else if e.kind == PointerEventKind.up && e.button == PointerEventButton.left {
+                        root.mq-up();
+                    }
+                }
+                moved => {
+                    if self.pressed {
+                        root.mq-move(self.mouse-x, r * root.tile-h + self.mouse-y);
+                    }
+                }
+            }
+            HorizontalLayout {
+                padding-left: 10px;
+                spacing: 4px;
+                alignment: start;
+                for c in root.cols: Rectangle {
+                    width: root.tw;
+                    height: root.th;
+                    property <int> idx: r * root.cols + c;
+                    if idx < root.files.length: Tile {
+                        item: root.files[idx];
+                        index: idx;
+                        pane: root.pane;
+                        tw: root.tw;
+                        th: root.th;
+                        art-h: root.art;
+                        icon-size: root.ic;
+                    }
+                }
+            }
+        }
+    }
+    TouchArea {
+        y: max(0px, ceil(root.files.length / root.cols) * root.tile-h + lv.content-y);
+        height: max(0px, root.height - self.y);
+        pointer-event(e) => {
+            if e.kind == PointerEventKind.down {
+                if e.button == PointerEventButton.left {
+                    S.bg-down(root.pane, e.modifiers.control || e.modifiers.meta || e.modifiers.shift);
+                    root.mq-down(self.mouse-x, self.y - lv.content-y + self.mouse-y, e.modifiers.control || e.modifiers.meta || e.modifiers.shift);
+                } else if e.button == PointerEventButton.right {
+                    S.bg-menu(root.pane, self.absolute-position.x + self.mouse-x, self.absolute-position.y + self.mouse-y);
+                }
+            } else if e.kind == PointerEventKind.up && e.button == PointerEventButton.left {
+                root.mq-up();
+            }
+        }
+        moved => {
+            if self.pressed {
+                root.mq-move(self.mouse-x, self.y - lv.content-y + self.mouse-y);
+            }
+        }
+    }
+    if root.mq-active: Rectangle {
+        x: min(root.mq-x0, root.mq-x1);
+        y: min(root.mq-y0, root.mq-y1) + lv.content-y;
+        width: abs(root.mq-x1 - root.mq-x0);
+        height: abs(root.mq-y1 - root.mq-y0);
+        background: Theme.accent.with-alpha(0.12);
+        border-width: 1px;
+        border-color: Theme.accent.with-alpha(0.75);
+        border-radius: 3px;
+    }
+}
+
+// ───────────────────────── home page ─────────────────────────
+
+component HomeCard inherits Rectangle {
+    in property <SideItem> item;
+    width: 168px;
+    height: 92px;
+    border-radius: 12px;
+    background: ta.has-hover ? Theme.press : Theme.raised;
+    animate background { duration: 90ms; }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        pointer-event(e) => {
+            if e.kind == PointerEventKind.down {
+                if e.button == PointerEventButton.middle {
+                    S.open-path-new-tab(root.item.path);
+                } else if e.button == PointerEventButton.right {
+                    S.side-menu(root.item.path, root.absolute-position.x + self.mouse-x, root.absolute-position.y + self.mouse-y);
+                }
+            }
+        }
+        clicked => { S.open-path(root.item.path); }
+    }
+    VerticalLayout {
+        padding: 14px;
+        spacing: 8px;
+        Rectangle {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: Theme.accent.with-alpha(0.16);
+            Icon {
+                source: K.icon(root.item.kind);
+                tint: Theme.accent;
+                size: 18px;
+            }
+        }
+        Text {
+            text: root.item.label;
+            font-weight: 500;
+            overflow: elide;
+            color: Theme.text;
+        }
+    }
+}
+
+component DriveCard inherits Rectangle {
+    in property <SideItem> item;
+    width: 262px;
+    height: 84px;
+    border-radius: 12px;
+    background: ta.has-hover ? Theme.press : Theme.raised;
+    animate background { duration: 90ms; }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        pointer-event(e) => {
+            if e.kind == PointerEventKind.down && e.button == PointerEventButton.middle {
+                S.open-path-new-tab(root.item.path);
+            }
+        }
+        clicked => { S.open-path(root.item.path); }
+    }
+    HorizontalLayout {
+        padding: 14px;
+        spacing: 12px;
+        VerticalLayout {
+            alignment: center;
+            Rectangle {
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                background: Theme.accent.with-alpha(0.16);
+                Icon {
+                    source: K.icon(root.item.kind);
+                    tint: Theme.accent;
+                    size: 20px;
+                }
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            spacing: 6px;
+            Text {
+                text: root.item.label;
+                font-weight: 500;
+                overflow: elide;
+                color: Theme.text;
+            }
+            Rectangle {
+                height: 6px;
+                border-radius: 3px;
+                background: Theme.bg;
+                Rectangle {
+                    x: 0;
+                    width: parent.width * clamp(root.item.usage, 0, 1);
+                    border-radius: 3px;
+                    background: root.item.usage > 0.9 ? Theme.danger : Theme.accent;
+                }
+            }
+            Text {
+                text: root.item.sub;
+                font-size: 11px;
+                color: Theme.text-dim;
+                overflow: elide;
+            }
+        }
+    }
+}
+
+component HomeView inherits Rectangle {
+    in property <int> pane;
+    property <int> qcols: max(1, floor((root.width - 48px + 12px) / (168px + 12px)));
+    property <int> dcols: max(1, floor((root.width - 48px + 12px) / (262px + 12px)));
+    TouchArea {
+        pointer-event(e) => {
+            if e.kind == PointerEventKind.down {
+                S.pane-activate(root.pane);
+            }
+        }
+    }
+    ScrollView {
+        VerticalLayout {
+            padding: 24px;
+            padding-top: 18px;
+            spacing: 12px;
+            alignment: start;
+            Text {
+                text: @tr("Quick access");
+                font-size: 15px;
+                font-weight: 600;
+                color: Theme.text;
+            }
+            for r in ceil(S.quick.length / root.qcols): HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+                for c in root.qcols: Rectangle {
+                    width: 168px;
+                    height: 92px;
+                    property <int> idx: r * root.qcols + c;
+                    if idx < S.quick.length: HomeCard {
+                        item: S.quick[idx];
+                    }
+                }
+            }
+            Rectangle {
+                height: 6px;
+            }
+            Text {
+                text: @tr("Drives");
+                font-size: 15px;
+                font-weight: 600;
+                color: Theme.text;
+            }
+            for r in ceil(S.drives.length / root.dcols): HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+                for c in root.dcols: Rectangle {
+                    width: 262px;
+                    height: 84px;
+                    property <int> idx: r * root.dcols + c;
+                    if idx < S.drives.length: DriveCard {
+                        item: S.drives[idx];
+                    }
+                }
+            }
+            if S.recent-files.length > 0: Rectangle {
+                height: 6px;
+            }
+            if S.recent-files.length > 0: Text {
+                text: @tr("Recent files");
+                font-size: 15px;
+                font-weight: 600;
+                color: Theme.text;
+            }
+            for f in S.recent-files: Rectangle {
+                height: 34px;
+                border-radius: 8px;
+                background: fta.has-hover ? Theme.hover : transparent;
+                fta := TouchArea {
+                    mouse-cursor: pointer;
+                    pointer-event(e) => {
+                        if e.kind == PointerEventKind.down && e.button == PointerEventButton.right {
+                            S.side-menu(f.path, self.absolute-position.x + self.mouse-x, self.absolute-position.y + self.mouse-y);
+                        }
+                    }
+                    clicked => { S.open-path(f.path); }
+                }
+                HorizontalLayout {
+                    padding-left: 10px;
+                    padding-right: 10px;
+                    spacing: 12px;
+                    VerticalLayout {
+                        alignment: center;
+                        Icon {
+                            source: K.icon(f.kind);
+                            tint: K.color(f.kind);
+                            size: 17px;
+                        }
+                    }
+                    Text {
+                        text: f.label;
+                        vertical-alignment: center;
+                        width: 260px;
+                        overflow: elide;
+                        color: Theme.text;
+                    }
+                    Text {
+                        text: f.sub;
+                        vertical-alignment: center;
+                        horizontal-stretch: 1;
+                        overflow: elide;
+                        color: Theme.text-faint;
+                        font-size: 12px;
+                    }
+                }
+            }
+            if S.recent.length > 0: Rectangle {
+                height: 6px;
+            }
+            if S.recent.length > 0: Text {
+                text: @tr("Recent folders");
+                font-size: 15px;
+                font-weight: 600;
+                color: Theme.text;
+            }
+            for f in S.recent: Rectangle {
+                height: 34px;
+                border-radius: 8px;
+                background: rta.has-hover ? Theme.hover : transparent;
+                rta := TouchArea {
+                    mouse-cursor: pointer;
+                    pointer-event(e) => {
+                        if e.kind == PointerEventKind.down && e.button == PointerEventButton.middle {
+                            S.open-path-new-tab(f.path);
+                        }
+                    }
+                    clicked => { S.open-path(f.path); }
+                }
+                HorizontalLayout {
+                    padding-left: 10px;
+                    padding-right: 10px;
+                    spacing: 12px;
+                    VerticalLayout {
+                        alignment: center;
+                        Icon {
+                            source: Icons.folder;
+                            tint: Theme.folder;
+                            size: 17px;
+                        }
+                    }
+                    Text {
+                        text: f.label;
+                        vertical-alignment: center;
+                        width: 220px;
+                        overflow: elide;
+                        color: Theme.text;
+                    }
+                    Text {
+                        text: f.sub;
+                        vertical-alignment: center;
+                        horizontal-stretch: 1;
+                        overflow: elide;
+                        color: Theme.text-faint;
+                        font-size: 12px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ───────────────────────── column view ─────────────────────────
+
+component ColumnList inherits Rectangle {
+    in property <string> title;
+    in property <[ColRow]> rows;
+    in property <int> pane;
+    in property <int> cidx;
+    in property <int> sel: -1;
+    width: 220px;
+    // keep the highlighted folder in view
+    changed sel => { root.reveal(); }
+    init => { root.reveal(); }
+    function reveal() {
+        if root.sel >= 0 {
+            clv.content-y = -max(0px, root.sel * 28px - clv.visible-height / 2);
+        }
+    }
+    VerticalLayout {
+        Rectangle {
+            height: 30px;
+            Text {
+                x: 12px;
+                width: parent.width - 20px;
+                text: root.title;
+                vertical-alignment: center;
+                overflow: elide;
+                color: Theme.text-faint;
+                font-size: 12px;
+                font-weight: 500;
+            }
+        }
+        clv := ListView {
+            for r[i] in root.rows: Rectangle {
+                height: 28px;
+                border-radius: 6px;
+                background: r.sel ? Theme.selection.with-alpha(0.55) : cta.has-hover ? Theme.hover : transparent;
+                cta := TouchArea {
+                    pointer-event(e) => {
+                        if e.kind == PointerEventKind.down && e.button == PointerEventButton.middle {
+                            S.col-click(root.pane, root.cidx, i, true);
+                        }
+                    }
+                    clicked => { S.col-click(root.pane, root.cidx, i, false); }
+                }
+                HorizontalLayout {
+                    padding-left: 10px;
+                    padding-right: 8px;
+                    spacing: 9px;
+                    VerticalLayout {
+                        alignment: center;
+                        Icon {
+                            source: K.icon(r.kind);
+                            tint: K.color(r.kind);
+                            size: 16px;
+                        }
+                    }
+                    Text {
+                        text: r.name;
+                        vertical-alignment: center;
+                        overflow: elide;
+                        horizontal-stretch: 1;
+                        color: r.sel ? Theme.text : Theme.text-dim;
+                    }
+                    if r.dir: VerticalLayout {
+                        alignment: center;
+                        Icon {
+                            source: Icons.chevron-right;
+                            size: 12px;
+                            tint: Theme.text-faint;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Miller columns: the folders above the current one on the left, the current folder (fully
+// interactive) in the middle, and what's inside the selected folder on the right.
+component ColumnsView inherits Rectangle {
+    in property <[FileRow]> files;
+    in property <int> pane;
+    in property <bool> search-mode;
+    in property <bool> bin;
+    property <[ColData]> cols: root.pane == 0 ? S.p0-cols : S.p1-cols;
+    property <[ColRow]> child: root.pane == 0 ? S.p0-child : S.p1-child;
+    property <string> child-title: root.pane == 0 ? S.p0-child-title : S.p1-child-title;
+    property <length> cur-w: 300px;
+    property <length> child-w: 240px;
+    property <int> nfit: max(0, floor((root.width - root.cur-w - root.child-w) / 221px));
+    HorizontalLayout {
+        alignment: start;
+        for c[i] in root.cols: HorizontalLayout {
+            if i >= root.cols.length - root.nfit: ColumnList {
+                title: c.title;
+                rows: c.rows;
+                sel: c.sel;
+                pane: root.pane;
+                cidx: i;
+            }
+            if i >= root.cols.length - root.nfit: Rectangle {
+                width: 1px;
+                background: Theme.border;
+            }
+        }
+        DetailsView {
+            width: root.cur-w;
+            files: root.files;
+            pane: root.pane;
+            search-mode: false;
+            bin: root.bin;
+            compact: true;
+        }
+        Rectangle {
+            width: 1px;
+            background: Theme.border;
+        }
+        if root.child.length > 0 || root.child-title != "": ColumnList {
+            width: root.child-w;
+            title: root.child-title;
+            rows: root.child;
+            pane: root.pane;
+            cidx: -1;
+        }
+    }
+}
+
+// ───────────────────────── pane ─────────────────────────
+
+component FilePane inherits Rectangle {
+    in property <int> pane;
+    property <[FileRow]> files: root.pane == 0 ? S.p0-files : S.p1-files;
+    property <bool> is-home: root.pane == 0 ? S.p0-home : S.p1-home;
+    property <bool> is-search: root.pane == 0 ? S.p0-search : S.p1-search;
+    property <bool> loading: root.pane == 0 ? S.p0-loading : S.p1-loading;
+    property <string> empty: root.pane == 0 ? S.p0-empty : S.p1-empty;
+    property <string> header: root.pane == 0 ? S.p0-header : S.p1-header;
+    property <bool> is-bin: root.pane == 0 ? S.p0-bin : S.p1-bin;
+    property <bool> active: S.active-pane == root.pane;
+    background: Theme.surface;
+    border-radius: 12px;
+    border-width: pane-drop.has-drag ? 2px : S.dual ? 1px : 0px;
+    border-color: pane-drop.has-drag ? Theme.accent : S.dual && root.active ? Theme.selection-strong : Theme.border;
+    clip: true;
+    pane-drop := DropArea {
+        enabled: !root.is-home && (!root.is-search || root.is-bin);
+        can-drop(ev) => {
+            return K.act(S.can-drop-at("::pane:" + root.pane, ev.data, ev.proposed-action == DragAction.copy));
+        }
+        dropped(ev) => {
+            let a = S.can-drop-at("::pane:" + root.pane, ev.data, ev.proposed-action == DragAction.copy);
+            S.drop-at("::pane:" + root.pane, ev.data, ev.proposed-action == DragAction.copy);
+            return K.act(a);
+        }
+    }
+    VerticalLayout {
+        if S.dual: Rectangle {
+            height: 32px;
+            background: root.active ? Theme.accent.with-alpha(0.08) : transparent;
+            TouchArea {
+                clicked => { S.pane-activate(root.pane); }
+            }
+            HorizontalLayout {
+                padding-left: 14px;
+                padding-right: 14px;
+                spacing: 8px;
+                VerticalLayout {
+                    alignment: center;
+                    Rectangle {
+                        width: 7px;
+                        height: 7px;
+                        border-radius: 4px;
+                        background: root.active ? Theme.accent : Theme.text-faint;
+                    }
+                }
+                Text {
+                    text: root.header;
+                    vertical-alignment: center;
+                    overflow: elide;
+                    color: root.active ? Theme.text : Theme.text-dim;
+                    font-size: 12px;
+                    font-weight: 500;
+                }
+            }
+        }
+        if root.is-bin: Rectangle {
+            height: 46px;
+            background: Theme.accent.with-alpha(0.06);
+            HorizontalLayout {
+                padding-left: 16px;
+                padding-right: 10px;
+                spacing: 10px;
+                VerticalLayout {
+                    alignment: center;
+                    Icon {
+                        source: Icons.trash;
+                        tint: Theme.accent;
+                        size: 17px;
+                    }
+                }
+                Text {
+                    text: root.files.length == 0 ? @tr("Nothing here") : @tr("Deleted items wait here until you empty it. Right-click an item to restore it.");
+                    vertical-alignment: center;
+                    overflow: elide;
+                    horizontal-stretch: 1;
+                    color: Theme.text-dim;
+                    font-size: 12px;
+                }
+                VerticalLayout {
+                    alignment: center;
+                    PillButton {
+                        height: 30px;
+                        text: @tr("Restore all");
+                        clicked => { S.cmd("restore-all"); }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    PillButton {
+                        height: 30px;
+                        text: @tr("Empty");
+                        danger: root.files.length > 0;
+                        clicked => { S.cmd("empty-bin"); }
+                    }
+                }
+            }
+            Rectangle {
+                y: parent.height - 1px;
+                height: 1px;
+                background: Theme.border;
+            }
+        }
+        Rectangle {
+            vertical-stretch: 1;
+            if root.is-home: HomeView {
+                pane: root.pane;
+            }
+            if !root.is-home && (S.view-mode == 0 || (S.view-mode == 2 && root.is-bin)): DetailsView {
+                files: root.files;
+                pane: root.pane;
+                search-mode: root.is-search;
+                bin: root.is-bin;
+            }
+            if !root.is-home && S.view-mode == 1: GridView {
+                files: root.files;
+                pane: root.pane;
+            }
+            if !root.is-home && S.view-mode == 2 && root.is-search && !root.is-bin: DetailsView {
+                files: root.files;
+                pane: root.pane;
+                search-mode: true;
+                bin: root.is-bin;
+            }
+            if !root.is-home && S.view-mode == 2 && !root.is-search: ColumnsView {
+                files: root.files;
+                pane: root.pane;
+            }
+            if !root.is-home && root.files.length == 0: VerticalLayout {
+                alignment: center;
+                spacing: 10px;
+                HorizontalLayout {
+                    alignment: center;
+                    Icon {
+                        source: root.loading ? Icons.loader : root.is-search ? Icons.folder-search : Icons.folder-open;
+                        size: 40px;
+                        tint: root.loading ? Theme.accent : Theme.text-faint;
+                        transform-rotation: root.loading ? (animation-tick() / 1ms * 0.36) * 1deg : 0deg;
+                    }
+                }
+                Text {
+                    text: root.loading ? @tr("Loading…") : root.empty;
+                    horizontal-alignment: center;
+                    color: Theme.text-faint;
+                }
+            }
+            // files dragged in from another app (macOS / Linux)
+            if S.ext-drop && root.active && !root.is-home && !root.is-search: Rectangle {
+                background: Theme.accent.with-alpha(0.10);
+                border-width: 2px;
+                border-color: Theme.accent;
+                border-radius: 10px;
+                Rectangle {
+                    width: drop-hint.preferred-width + 32px;
+                    height: 40px;
+                    border-radius: 20px;
+                    background: Theme.accent;
+                    drop-hint := Text {
+                        text: @tr("Drop to add them to this folder");
+                        color: #FFFFFF;
+                        font-weight: 600;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ───────────────────────── preview pane ─────────────────────────
+
+component PreviewPane inherits Rectangle {
+    width: 300px;
+    background: Theme.surface;
+    border-radius: 12px;
+    clip: true;
+    ScrollView {
+        VerticalLayout {
+            padding: 16px;
+            spacing: 12px;
+            alignment: start;
+            Rectangle {
+                height: 190px;
+                border-radius: 10px;
+                background: Theme.raised;
+                clip: true;
+                if S.pv-has-image: Image {
+                    source: S.pv-image;
+                    image-fit: contain;
+                    width: parent.width - 16px;
+                    height: parent.height - 16px;
+                }
+                if !S.pv-has-image: Icon {
+                    source: K.icon(S.pv-kind);
+                    tint: K.color(S.pv-kind);
+                    size: 64px;
+                }
+            }
+            Text {
+                text: S.pv-title;
+                font-size: 15px;
+                font-weight: 600;
+                wrap: word-wrap;
+                color: Theme.text;
+            }
+            Text {
+                text: S.pv-subtitle;
+                color: Theme.text-dim;
+                wrap: word-wrap;
+                font-size: 12px;
+            }
+            if S.sel-count > 0 && !S.in-bin: HorizontalLayout {
+                spacing: 4px;
+                alignment: start;
+                ToolButton {
+                    icon: Icons.open;
+                    tip: @tr("Open (Enter)");
+                    clicked => { S.cmd("open"); }
+                }
+                ToolButton {
+                    icon: Icons.scan-eye;
+                    tip: @tr("Quick look (Space)");
+                    clicked => { S.cmd("quicklook"); }
+                }
+                ToolButton {
+                    icon: Icons.hash;
+                    tip: @tr("Hashes (Ctrl+Shift+H)");
+                    clicked => { S.cmd("hashes"); }
+                }
+                ToolButton {
+                    icon: Icons.link;
+                    tip: @tr("Copy path");
+                    clicked => { S.cmd("copy-path"); }
+                }
+                ToolButton {
+                    icon: Icons.info;
+                    tip: @tr("Properties (Alt+Enter)");
+                    clicked => { S.cmd("properties"); }
+                }
+            }
+            Rectangle {
+                height: 1px;
+                background: Theme.border;
+            }
+            for p in S.pv-props: HorizontalLayout {
+                spacing: 10px;
+                Text {
+                    text: p.key;
+                    width: 78px;
+                    color: Theme.text-faint;
+                    font-size: 12px;
+                }
+                Text {
+                    text: p.value;
+                    horizontal-stretch: 1;
+                    wrap: word-wrap;
+                    color: Theme.text;
+                    font-size: 12px;
+                }
+            }
+            if S.pv-has-text: Rectangle {
+                height: 300px;
+                border-radius: 8px;
+                background: Theme.bg;
+                clip: true;
+                Text {
+                    x: 10px;
+                    y: 8px;
+                    width: parent.width - 20px;
+                    height: parent.height - 16px;
+                    text: S.pv-text;
+                    font-family: S.mono-font;
+                    font-size: 11px;
+                    color: Theme.text-dim;
+                    vertical-alignment: top;
+                    overflow: elide;
+                }
+            }
+        }
+    }
+}
+
+// ───────────────────────── menu ─────────────────────────
+
+component MenuRow inherits Rectangle {
+    in property <MenuEntry> entry;
+    property <bool> is-tags: root.entry.action == "::tags";
+    height: root.entry.separator ? 9px : root.is-tags ? 40px : 32px;
+    if root.is-tags: HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 10px;
+        VerticalLayout {
+            alignment: center;
+            Icon {
+                source: Icons.tag;
+                tint: Theme.text-dim;
+            }
+        }
+        Text {
+            text: @tr("Tag");
+            vertical-alignment: center;
+            color: Theme.text;
+        }
+        Rectangle {
+            horizontal-stretch: 1;
+        }
+        for c[i] in S.tag-colors: VerticalLayout {
+            alignment: center;
+            Rectangle {
+                width: 20px;
+                height: 20px;
+                border-radius: 10px;
+                background: c;
+                border-width: tta.has-hover ? 2px : 0px;
+                border-color: Theme.text;
+                tta := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { S.menu-action("tag:" + i); }
+                }
+            }
+        }
+    }
+    if root.entry.separator: Rectangle {
+        y: 4px;
+        height: 1px;
+        x: 8px;
+        width: parent.width - 16px;
+        background: Theme.border;
+    }
+    if !root.entry.separator && !root.is-tags: Rectangle {
+        border-radius: 6px;
+        background: ta.has-hover ? (root.entry.danger ? Theme.danger.with-alpha(0.16) : Theme.hover) : transparent;
+        ta := TouchArea {
+            mouse-cursor: pointer;
+            clicked => { S.menu-action(root.entry.action); }
+        }
+        HorizontalLayout {
+            padding-left: 10px;
+            padding-right: 12px;
+            spacing: 10px;
+            VerticalLayout {
+                alignment: center;
+                Rectangle {
+                    width: 16px;
+                    height: 16px;
+                    if root.entry.checked: Icon {
+                        source: Icons.check;
+                        tint: Theme.accent;
+                    }
+                    if !root.entry.checked && root.entry.icon >= 0: Icon {
+                        source: K.icon(root.entry.icon);
+                        tint: root.entry.danger ? Theme.danger : root.entry.icon == 0 ? Theme.folder : Theme.text-dim;
+                    }
+                }
+            }
+            Text {
+                text: root.entry.label;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+                overflow: elide;
+                color: root.entry.danger ? Theme.danger : Theme.text;
+            }
+            Text {
+                text: root.entry.shortcut;
+                vertical-alignment: center;
+                color: Theme.text-faint;
+                font-size: 11px;
+            }
+        }
+    }
+}
+
+// ───────────────────────── main window ─────────────────────────
+
+export component AppWindow inherits Window {
+    title: S.window-title;
+    icon: @image-url("icons/skj-logo.svg");
+    preferred-width: 1280px;
+    preferred-height: 800px;
+    min-width: 720px;
+    min-height: 460px;
+    background: Theme.bg;
+    default-font-family: "Inter";
+    default-font-size: 13px;
+
+    property <bool> dk: Theme.dark;
+    changed dk => {
+        Palette.color-scheme = root.dk ? ColorScheme.dark : ColorScheme.light;
+    }
+    init => {
+        Palette.color-scheme = Theme.dark ? ColorScheme.dark : ColorScheme.light;
+        fs.focus();
+    }
+
+    public function show-menu() {
+        menu-popup.show();
+    }
+    public function focus-main() {
+        fs.focus();
+    }
+    public function focus-search() {
+        search.focus-search();
+    }
+
+    property <int> dlg: S.dialog;
+
+    fs := FocusScope {
+        key-pressed(e) => {
+            if S.key(e.text, e.modifiers.control || e.modifiers.meta, e.modifiers.shift, e.modifiers.alt) {
+                return accept;
+            }
+            return reject;
+        }
+
+        VerticalLayout {
+            TabStrip { }
+
+            // toolbar area
+            Rectangle {
+                background: Theme.chrome;
+                VerticalLayout {
+                    HorizontalLayout {
+                        padding-left: 8px;
+                        padding-right: 10px;
+                        padding-top: 6px;
+                        padding-bottom: 4px;
+                        spacing: 2px;
+                        VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.arrow-left;
+tip: @tr("Back (Alt+←)");
+                                enabled: S.can-back;
+                                clicked => { S.nav-back(); }
+                            }
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.arrow-right;
+tip: @tr("Forward (Alt+→)");
+                                enabled: S.can-forward;
+                                clicked => { S.nav-forward(); }
+                            }
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.arrow-up;
+tip: @tr("Up one folder (Alt+↑)");
+                                enabled: S.can-up;
+                                clicked => { S.nav-up(); }
+                            }
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.refresh;
+tip: @tr("Refresh (F5)");
+                                clicked => { S.refresh(); }
+                            }
+                        }
+                        Rectangle {
+                            width: 6px;
+                        }
+                        AddressBar {
+                            horizontal-stretch: 1;
+                        }
+                        Rectangle {
+                            width: 8px;
+                        }
+                        search := SearchBox {
+                            min-width: 180px;
+                            preferred-width: 300px;
+                            max-width: 360px;
+                            horizontal-stretch: 0;
+                        }
+                    }
+                    // command bar
+                    HorizontalLayout {
+                        padding-left: 8px;
+                        padding-right: 10px;
+                        padding-bottom: 6px;
+                        spacing: 2px;
+                        height: 42px;
+                        VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.plus;
+                                label: @tr("New");
+                                dropdown: true;
+                                enabled: S.in-folder;
+                                clicked-at(x, y) => { S.cmd-at("new-menu", x, y); }
+                            }
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            Sep { }
+                        }
+                        if S.tb[0]: VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.cut;
+tip: @tr("Cut (Ctrl+X)");
+                                enabled: S.sel-count > 0 && !S.in-bin;
+                                clicked => { S.cmd("cut"); }
+                            }
+                        }
+                        if S.tb[1]: VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.copy;
+tip: @tr("Copy (Ctrl+C)");
+                                enabled: S.sel-count > 0 && !S.in-bin;
+                                clicked => { S.cmd("copy"); }
+                            }
+                        }
+                        if S.tb[2]: VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.paste;
+tip: @tr("Paste (Ctrl+V)");
+                                enabled: S.can-paste && S.in-folder;
+                                clicked => { S.cmd("paste"); }
+                            }
+                        }
+                        if S.tb[3]: VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.rename;
+tip: @tr("Rename (F2)");
+                                enabled: S.sel-count == 1 && !S.in-bin;
+                                clicked => { S.cmd("rename"); }
+                            }
+                        }
+                        if S.tb[4]: VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.trash;
+                                tip: S.in-bin ? @tr("Delete permanently (Del)") : @tr("Move to bin (Del)");
+                                enabled: S.sel-count > 0;
+                                tint: Theme.text;
+                                clicked => { S.cmd("delete"); }
+                            }
+                        }
+                        if S.tb[5]: VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.undo;
+                                tip: @tr("Undo (Ctrl+Z)");
+                                enabled: S.can-undo;
+                                clicked => { S.cmd("undo"); }
+                            }
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            Sep { }
+                        }
+                        if S.tb[6]: VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.sort;
+                                label: @tr("Sort");
+                                dropdown: true;
+                                clicked-at(x, y) => { S.cmd-at("sort-menu", x, y); }
+                            }
+                        }
+                        if S.tb[7]: VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.package;
+                                label: @tr("Tools");
+                                dropdown: true;
+                                clicked-at(x, y) => { S.cmd-at("tools-menu", x, y); }
+                            }
+                        }
+                        if S.tb[8]: VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: S.view-mode == 0 ? Icons.list : Icons.grid;
+                                label: @tr("View");
+                                dropdown: true;
+                                clicked-at(x, y) => { S.cmd-at("view-menu", x, y); }
+                            }
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.ellipsis;
+tip: @tr("More");
+                                clicked-at(x, y) => { S.cmd-at("more-menu", x, y); }
+                            }
+                        }
+                        for b[i] in [
+                            { idx: 12, icon: Icons.command, tip: @tr("Command palette (Ctrl+Shift+P)"), act: "palette" },
+                            { idx: 13, icon: Icons.plus, tip: @tr("New tab (Ctrl+T)"), act: "new-tab" },
+                            { idx: 14, icon: Icons.terminal, tip: @tr("Open in terminal"), act: "terminal" },
+                            { idx: 15, icon: Icons.code, tip: @tr("Open in VS Code"), act: "vscode" },
+                            { idx: 16, icon: Icons.hash, tip: @tr("Hashes"), act: "hashes" },
+                            { idx: 17, icon: Icons.package, tip: @tr("Compress to ZIP"), act: "compress" },
+                            { idx: 18, icon: Icons.info, tip: @tr("Properties (Alt+Enter)"), act: "properties" },
+                            { idx: 19, icon: Icons.trash, tip: @tr("Recycle Bin"), act: "open-bin" }
+                        ]: HorizontalLayout {
+                            if S.tb[b.idx]: VerticalLayout {
+                                alignment: center;
+                                ToolButton {
+                                    icon: b.icon;
+                                    tip: b.tip;
+                                    clicked => { S.cmd(b.act); }
+                                }
+                            }
+                        }
+                        Rectangle {
+                            horizontal-stretch: 1;
+                        }
+                        if S.tb[9]: VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: S.show-hidden ? Icons.eye : Icons.eye-off;
+                                tip: S.show-hidden ? @tr("Hide hidden files (Ctrl+H)") : @tr("Show hidden files (Ctrl+H)");
+                                checked: S.show-hidden;
+                                clicked => { S.cmd("toggle-hidden"); }
+                            }
+                        }
+                        if S.tb[10]: VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.columns;
+tip: @tr("Dual pane");
+                                checked: S.dual;
+                                clicked => { S.cmd("toggle-dual"); }
+                            }
+                        }
+                        if S.tb[11]: VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.panel-right;
+tip: @tr("Preview pane (Ctrl+P)");
+                                checked: S.show-preview;
+                                clicked => { S.cmd("toggle-preview"); }
+                            }
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            ToolButton {
+                                icon: Icons.settings;
+tip: @tr("Settings (Ctrl+,)");
+                                clicked => { S.cmd("settings"); }
+                            }
+                        }
+                    }
+                }
+                Rectangle {
+                    y: parent.height - 1px;
+                    height: 1px;
+                    background: Theme.border;
+                }
+            }
+
+            // body
+            HorizontalLayout {
+                vertical-stretch: 1;
+                Sidebar { }
+                HorizontalLayout {
+                    padding-top: 8px;
+                    padding-right: 8px;
+                    padding-bottom: 2px;
+                    spacing: 8px;
+                    FilePane {
+                        pane: 0;
+                        horizontal-stretch: 1;
+                    }
+                    if S.dual: FilePane {
+                        pane: 1;
+                        horizontal-stretch: 1;
+                    }
+                    if S.show-preview: PreviewPane { }
+                }
+            }
+
+            // status bar
+            HorizontalLayout {
+                height: 30px;
+                padding-left: 16px;
+                padding-right: 16px;
+                spacing: 14px;
+                Text {
+                    text: S.status-left;
+                    vertical-alignment: center;
+                    color: Theme.text-dim;
+                    font-size: 12px;
+                }
+                if S.op-progress >= 0: HorizontalLayout {
+                    spacing: 8px;
+                    VerticalLayout {
+                        alignment: center;
+                        Rectangle {
+                            width: 160px;
+                            height: 6px;
+                            border-radius: 3px;
+                            background: Theme.raised;
+                            Rectangle {
+                                x: 0;
+                                width: parent.width * clamp(S.op-progress, 0, 1);
+                                border-radius: 3px;
+                                background: Theme.accent;
+                            }
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        ToolButton {
+                            height: 22px;
+                            min-width: 22px;
+                            icon: Icons.x;
+                            tip: @tr("Cancel");
+                            enabled: !S.op-cancelling;
+                            clicked => { S.cmd("cancel-op"); }
+                        }
+                    }
+                    Text {
+                        text: S.op-text;
+                        vertical-alignment: center;
+                        color: Theme.text-dim;
+                        font-size: 12px;
+                        overflow: elide;
+                        max-width: 600px;
+                    }
+                }
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+                Text {
+                    text: S.status-right;
+                    vertical-alignment: center;
+                    color: Theme.text-faint;
+                    font-size: 12px;
+                }
+                HorizontalLayout {
+                    spacing: 2px;
+                    padding-top: 3px;
+                    padding-bottom: 3px;
+                    ToolButton {
+                        height: 24px;
+                        icon: Icons.list;
+                        tip: @tr("Details");
+                        checked: S.view-mode == 0;
+                        clicked => { S.cmd("view:0"); }
+                    }
+                    ToolButton {
+                        height: 24px;
+                        icon: Icons.grid;
+                        tip: @tr("Grid");
+                        checked: S.view-mode == 1 && S.grid-size != 2;
+                        clicked => { S.cmd(S.view-mode == 1 && S.grid-size == 1 ? "grid:0" : "grid:1"); }
+                    }
+                    ToolButton {
+                        height: 24px;
+                        icon: Icons.columns3;
+                        tip: @tr("Columns");
+                        checked: S.view-mode == 2;
+                        clicked => { S.cmd("view:2"); }
+                    }
+                    ToolButton {
+                        height: 24px;
+                        icon: Icons.image;
+                        tip: @tr("Large icons");
+                        checked: S.view-mode == 1 && S.grid-size == 2;
+                        clicked => { S.cmd("grid:2"); }
+                    }
+                }
+            }
+        }
+    }
+
+    // ── toast ──
+    if S.toast != "": Rectangle {
+        x: (root.width - self.width) / 2;
+        y: root.height - 76px;
+        height: 38px;
+        width: min(root.width - 40px, toast-text.preferred-width + 36px);
+        border-radius: 19px;
+        background: Theme.menu-bg;
+        border-width: 1px;
+        border-color: Theme.border;
+        drop-shadow-blur: 16px;
+        drop-shadow-color: #00000055;
+        drop-shadow-offset-y: 4px;
+        toast-text := Text {
+            text: S.toast;
+            color: Theme.text;
+            overflow: elide;
+            width: parent.width - 36px;
+            horizontal-alignment: center;
+        }
+    }
+
+    // ── dialogs ──
+    if S.dialog != 0: Rectangle {
+        background: #00000080;
+        TouchArea { }
+        card := Rectangle {
+            width: S.dialog == 3 ? 560px : S.dialog == 4 ? 500px : S.dialog == 5 ? 680px : S.dialog == 6 || S.dialog == 7 ? 560px : S.dialog == 8 ? 480px : 440px;
+            height: dlg-layout.preferred-height;
+            x: (root.width - self.width) / 2;
+            // settings stays put when its tabs change height
+            y: S.dialog == 3 ? max(24px, min(60px, root.height - self.height - 24px)) : max(24px, (root.height - self.height) / 2 - 40px);
+            border-radius: 14px;
+            background: Theme.menu-bg;
+            border-width: 1px;
+            border-color: Theme.border;
+            drop-shadow-blur: 30px;
+            drop-shadow-color: #00000080;
+            drop-shadow-offset-y: 8px;
+            FocusScope {
+                key-pressed(e) => {
+                    if S.capturing != "" {
+                        S.shortcut-key(e.text, e.modifiers.control || e.modifiers.meta, e.modifiers.shift, e.modifiers.alt);
+                        return accept;
+                    }
+                    if e.text == Key.Escape {
+                        S.dialog-cancel();
+                        return accept;
+                    }
+                    if e.text == Key.Return && S.dialog != 1 && S.dialog != 8 {
+                        S.dialog-ok(S.dialog-text);
+                        return accept;
+                    }
+                    return reject;
+                }
+                init => {
+                    if S.dialog != 1 {
+                        self.focus();
+                    }
+                }
+                dlg-layout := VerticalLayout {
+                    padding: 22px;
+                    spacing: 14px;
+                    alignment: start;
+                    Text {
+                        text: S.dialog-title;
+                        font-size: 17px;
+                        font-weight: 600;
+                        color: Theme.text;
+                        wrap: word-wrap;
+                    }
+                    if S.dialog-message != "": Text {
+                        text: S.dialog-message;
+                        color: Theme.text-dim;
+                        wrap: word-wrap;
+                    }
+                    // input dialog
+                    if S.dialog == 1: Rectangle {
+                        height: 38px;
+                        border-radius: 9px;
+                        background: Theme.raised;
+                        border-width: 1px;
+                        border-color: Theme.accent;
+                        HorizontalLayout {
+                            padding-left: 12px;
+                            padding-right: 12px;
+                            dlg-input := TextInput {
+                                text <=> S.dialog-text;
+                                vertical-alignment: center;
+                                color: Theme.text;
+                                single-line: true;
+                                selection-background-color: Theme.selection-strong;
+                                init => {
+                                    self.focus();
+                                    self.set-selection-offsets(0, S.dialog-sel-end);
+                                }
+                                accepted => { S.dialog-ok(self.text); }
+                            }
+                        }
+                    }
+                    // connect to server
+                    if S.dialog == 8: VerticalLayout {
+                        spacing: 10px;
+                        for f[i] in [
+                            { label: @tr("Server"), hint: "", which: 0 },
+                            { label: @tr("User name"), hint: @tr("optional"), which: 1 },
+                            { label: @tr("Password"), hint: @tr("optional"), which: 2 }
+                        ]: HorizontalLayout {
+                            spacing: 12px;
+                            Text {
+                                text: f.label;
+                                width: 90px;
+                                vertical-alignment: center;
+                                color: Theme.text-dim;
+                            }
+                            Rectangle {
+                                height: 36px;
+                                horizontal-stretch: 1;
+                                border-radius: 9px;
+                                background: Theme.raised;
+                                border-width: 1px;
+                                border-color: ci.has-focus ? Theme.accent : Theme.border;
+                                ci := TextInput {
+                                    x: 12px;
+                                    width: parent.width - 24px;
+                                    height: parent.height;
+                                    vertical-alignment: center;
+                                    color: Theme.text;
+                                    single-line: true;
+                                    input-type: f.which == 2 ? InputType.password : InputType.text;
+                                    selection-background-color: Theme.selection-strong;
+                                    text: f.which == 0 ? S.dialog-text : f.which == 1 ? S.cn-user : S.cn-pass;
+                                    init => {
+                                        if f.which == 0 {
+                                            self.focus();
+                                        }
+                                    }
+                                    edited => {
+                                        if f.which == 0 {
+                                            S.dialog-text = self.text;
+                                        } else if f.which == 1 {
+                                            S.cn-user = self.text;
+                                        } else {
+                                            S.cn-pass = self.text;
+                                        }
+                                    }
+                                    accepted => { S.dialog-ok(S.dialog-text); }
+                                }
+                                if ci.text == "" && f.hint != "": Text {
+                                    x: 12px;
+                                    height: parent.height;
+                                    text: f.hint;
+                                    color: Theme.text-faint;
+                                    vertical-alignment: center;
+                                }
+                            }
+                        }
+                    }
+                    // properties
+                    if S.dialog == 4: VerticalLayout {
+                        spacing: 8px;
+                        for p in S.dialog-props: HorizontalLayout {
+                            spacing: 14px;
+                            Text {
+                                text: p.key;
+                                width: 110px;
+                                color: Theme.text-faint;
+                            }
+                            Text {
+                                text: p.value;
+                                horizontal-stretch: 1;
+                                wrap: word-wrap;
+                                color: Theme.text;
+                            }
+                        }
+                    }
+                    // hashes
+                    if S.dialog == 5: VerticalLayout {
+                        spacing: 10px;
+                        Text {
+                            text: S.hash-file;
+                            color: Theme.text-dim;
+                            overflow: elide;
+                        }
+                        if S.hash-busy: Rectangle {
+                            height: 6px;
+                            border-radius: 3px;
+                            background: Theme.raised;
+                            Rectangle {
+                                x: 0;
+                                width: parent.width * clamp(S.hash-progress, 0.02, 1);
+                                border-radius: 3px;
+                                background: Theme.accent;
+                            }
+                        }
+                        for h in S.hash-rows: Rectangle {
+                            border-radius: 8px;
+                            background: Theme.raised;
+                            HorizontalLayout {
+                                padding: 8px;
+                                padding-left: 12px;
+                                spacing: 12px;
+                                Text {
+                                    text: h.key;
+                                    width: 120px;
+                                    color: Theme.text-faint;
+                                    font-weight: 600;
+                                    font-size: 12px;
+                                    overflow: elide;
+                                    vertical-alignment: center;
+                                }
+                                Text {
+                                    text: h.value;
+                                    horizontal-stretch: 1;
+                                    wrap: char-wrap;
+                                    font-family: S.hash-verify ? "" : S.mono-font;
+                                    font-size: 12px;
+                                    vertical-alignment: center;
+                                    color: S.hash-verify ? (h.value.starts-with("✓") ? #22C55E : h.value.starts-with("✗") ? Theme.danger : Theme.text-dim) : h.value == S.hash-compare && S.hash-compare != "" ? #22C55E : Theme.text;
+                                }
+                                if !S.hash-verify: VerticalLayout {
+                                    alignment: center;
+                                    ToolButton {
+                                        height: 28px;
+                                        icon: Icons.copy;
+                                        tip: @tr("Copy");
+                                        enabled: !S.hash-busy || h.value.character-count > 12;
+                                        clicked => { S.hash-copy(h.key); }
+                                    }
+                                }
+                            }
+                        }
+                        if !S.hash-verify: Rectangle {
+                            height: 38px;
+                            border-radius: 9px;
+                            background: Theme.raised;
+                            border-width: 1px;
+                            border-color: cmp.has-focus ? Theme.accent : Theme.border;
+                            HorizontalLayout {
+                                padding-left: 12px;
+                                padding-right: 12px;
+                                spacing: 8px;
+                                VerticalLayout {
+                                    alignment: center;
+                                    Icon {
+                                        source: Icons.shield-check;
+                                        tint: Theme.text-faint;
+                                    }
+                                }
+                                Rectangle {
+                                    horizontal-stretch: 1;
+                                    cmp := TextInput {
+                                        width: parent.width;
+                                        height: parent.height;
+                                        text <=> S.hash-compare;
+                                        vertical-alignment: center;
+                                        color: Theme.text;
+                                        single-line: true;
+                                        font-family: S.mono-font;
+                                        selection-background-color: Theme.selection-strong;
+                                        edited => { S.hash-compare-changed(self.text); }
+                                    }
+                                    if S.hash-compare == "": Text {
+                                        width: parent.width;
+                                        height: parent.height;
+                                        text: @tr("Paste a hash here to check it");
+                                        color: Theme.text-faint;
+                                        vertical-alignment: center;
+                                    }
+                                }
+                            }
+                        }
+                        if S.hash-match != "": HorizontalLayout {
+                            spacing: 8px;
+                            VerticalLayout {
+                                alignment: center;
+                                Icon {
+                                    source: S.hash-match-state == 1 ? Icons.circle-check : Icons.circle-x;
+                                    tint: S.hash-match-state == 1 ? #22C55E : Theme.danger;
+                                    size: 18px;
+                                }
+                            }
+                            Text {
+                                text: S.hash-match;
+                                vertical-alignment: center;
+                                color: S.hash-match-state == 1 ? #22C55E : Theme.danger;
+                                font-weight: 600;
+                                wrap: word-wrap;
+                            }
+                        }
+                    }
+                    // batch rename
+                    if S.dialog == 6: VerticalLayout {
+                        spacing: 10px;
+                        for f[i] in [
+                            { label: @tr("Find"), hint: @tr("text to replace (optional)"), which: 0 },
+                            { label: @tr("Replace with"), hint: "", which: 1 },
+                            { label: @tr("New name"), hint: @tr("e.g. Holiday {{nn}} or {{date}} {{name}}"), which: 2 }
+                        ]: HorizontalLayout {
+                            spacing: 12px;
+                            Text {
+                                text: f.label;
+                                width: 100px;
+                                vertical-alignment: center;
+                                color: Theme.text-dim;
+                            }
+                            Rectangle {
+                                height: 36px;
+                                horizontal-stretch: 1;
+                                border-radius: 9px;
+                                background: Theme.raised;
+                                border-width: 1px;
+                                border-color: bi.has-focus ? Theme.accent : Theme.border;
+                                bi := TextInput {
+                                    x: 12px;
+                                    width: parent.width - 24px;
+                                    height: parent.height;
+                                    vertical-alignment: center;
+                                    color: Theme.text;
+                                    single-line: true;
+                                    selection-background-color: Theme.selection-strong;
+                                    text: f.which == 0 ? S.batch-find : f.which == 1 ? S.batch-replace : S.batch-pattern;
+                                    init => {
+                                        if f.which == 0 {
+                                            self.focus();
+                                        }
+                                    }
+                                    edited => {
+                                        if f.which == 0 {
+                                            S.batch-find = self.text;
+                                        } else if f.which == 1 {
+                                            S.batch-replace = self.text;
+                                        } else {
+                                            S.batch-pattern = self.text;
+                                        }
+                                        S.batch-changed();
+                                    }
+                                    accepted => { S.dialog-ok(""); }
+                                }
+                                if bi.text == "": Text {
+                                    x: 12px;
+                                    height: parent.height;
+                                    text: f.hint;
+                                    color: Theme.text-faint;
+                                    vertical-alignment: center;
+                                }
+                            }
+                        }
+                        Rectangle {
+                            border-radius: 8px;
+                            background: Theme.raised;
+                            VerticalLayout {
+                                padding: 10px;
+                                spacing: 6px;
+                                for r in S.batch-preview: HorizontalLayout {
+                                    spacing: 8px;
+                                    Text {
+                                        text: r.key;
+                                        width: 220px;
+                                        overflow: elide;
+                                        color: Theme.text-dim;
+                                        font-size: 12px;
+                                    }
+                                    Icon {
+                                        source: Icons.arrow-right;
+                                        size: 12px;
+                                        tint: Theme.text-faint;
+                                    }
+                                    Text {
+                                        text: r.value;
+                                        width: 220px;
+                                        overflow: elide;
+                                        color: r.key == r.value ? Theme.text-dim : Theme.accent;
+                                        font-size: 12px;
+                                        font-weight: 500;
+                                    }
+                                }
+                                Text {
+                                    text: S.batch-summary;
+                                    color: Theme.text-faint;
+                                    font-size: 11px;
+                                }
+                            }
+                        }
+                    }
+                    // name clash
+                    if S.dialog == 7: VerticalLayout {
+                        spacing: 10px;
+                        HorizontalLayout {
+                            spacing: 10px;
+                            for v in [
+                                { label: @tr("New"), info: S.cf-new, badge: S.cf-new-badge, sub: S.cf-new-from },
+                                { label: @tr("Already there"), info: S.cf-old, badge: S.cf-old-badge, sub: "" }
+                            ]: Rectangle {
+                                horizontal-stretch: 1;
+                                border-radius: 10px;
+                                background: Theme.raised;
+                                VerticalLayout {
+                                    padding: 12px;
+                                    spacing: 5px;
+                                    alignment: start;
+                                    HorizontalLayout {
+                                        spacing: 8px;
+                                        VerticalLayout {
+                                            alignment: center;
+                                            Icon {
+                                                source: K.icon(S.cf-kind);
+                                                tint: K.color(S.cf-kind);
+                                                size: 18px;
+                                            }
+                                        }
+                                        Text {
+                                            text: v.label;
+                                            font-weight: 600;
+                                            color: Theme.text;
+                                            vertical-alignment: center;
+                                        }
+                                        Rectangle {
+                                            horizontal-stretch: 1;
+                                        }
+                                        if v.badge != "": Rectangle {
+                                            height: 20px;
+                                            width: badge-t.preferred-width + 14px;
+                                            border-radius: 10px;
+                                            background: Theme.accent.with-alpha(0.18);
+                                            badge-t := Text {
+                                                text: v.badge;
+                                                font-size: 11px;
+                                                font-weight: 600;
+                                                color: Theme.accent;
+                                            }
+                                        }
+                                    }
+                                    Text {
+                                        text: S.cf-name;
+                                        color: Theme.text;
+                                        overflow: elide;
+                                    }
+                                    Text {
+                                        text: v.info;
+                                        color: Theme.text-dim;
+                                        font-size: 12px;
+                                        overflow: elide;
+                                    }
+                                    if v.sub != "": Text {
+                                        text: @tr("from {}", v.sub);
+                                        color: Theme.text-faint;
+                                        font-size: 11px;
+                                        overflow: elide;
+                                    }
+                                }
+                            }
+                        }
+                        for c in [
+                            { which: 1, icon: S.cf-merge ? Icons.folder-input : Icons.copy, title: S.cf-merge ? @tr("Merge the folders") : @tr("Replace"), sub: S.cf-merge ? @tr("Combine them; same-name files are replaced (old ones go to the bin)") : @tr("The one that's there now goes to the bin, so it can be restored") },
+                            { which: 0, icon: Icons.copy-plus, title: @tr("Keep both"), sub: @tr("The new one gets a \" - Copy\" name") },
+                            { which: 2, icon: Icons.arrow-right, title: @tr("Skip"), sub: @tr("Leave what's there and don't copy this one") }
+                        ]: Rectangle {
+                            height: 54px;
+                            border-radius: 10px;
+                            background: cta.has-hover ? Theme.press : Theme.raised;
+                            border-width: 1px;
+                            border-color: cta.has-hover ? Theme.accent : transparent;
+                            cta := TouchArea {
+                                mouse-cursor: pointer;
+                                clicked => { S.conflict-choose(c.which); }
+                            }
+                            HorizontalLayout {
+                                padding-left: 14px;
+                                padding-right: 14px;
+                                spacing: 12px;
+                                VerticalLayout {
+                                    alignment: center;
+                                    Icon {
+                                        source: c.icon;
+                                        tint: Theme.accent;
+                                        size: 18px;
+                                    }
+                                }
+                                VerticalLayout {
+                                    alignment: center;
+                                    spacing: 2px;
+                                    Text {
+                                        text: c.title;
+                                        font-weight: 600;
+                                        color: Theme.text;
+                                    }
+                                    Text {
+                                        text: c.sub;
+                                        font-size: 12px;
+                                        color: Theme.text-dim;
+                                        overflow: elide;
+                                    }
+                                }
+                            }
+                        }
+                        if S.cf-left > 0: Toggle {
+                            text: @tr("Do the same for the other {n} clash" | "Do the same for the other {n} clashes" % S.cf-left);
+                            on: S.cf-all;
+                            toggled => { S.cf-all = !S.cf-all; }
+                        }
+                    }
+                    // settings
+                    if S.dialog == 3: HorizontalLayout {
+                        spacing: 6px;
+                        for t[i] in [
+                            { label: @tr("General"), icon: Icons.settings },
+                            { label: @tr("Toolbar"), icon: Icons.grid },
+                            { label: @tr("Shortcuts"), icon: Icons.keyboard },
+                            { label: @tr("System"), icon: Icons.languages }
+                        ]: Rectangle {
+                            height: 32px;
+                            width: tl.preferred-width + 36px;
+                            border-radius: 8px;
+                            background: S.set-tab == i ? Theme.selection : sta.has-hover ? Theme.hover : transparent;
+                            sta := TouchArea {
+                                mouse-cursor: pointer;
+                                clicked => { S.set-tab = i; }
+                            }
+                            HorizontalLayout {
+                                padding-left: 10px;
+                                spacing: 6px;
+                                VerticalLayout {
+                                    alignment: center;
+                                    Icon {
+                                        source: t.icon;
+                                        size: 14px;
+                                        tint: S.set-tab == i ? Theme.accent : Theme.text-dim;
+                                    }
+                                }
+                                tl := Text {
+                                    text: t.label;
+                                    vertical-alignment: center;
+                                    color: S.set-tab == i ? Theme.text : Theme.text-dim;
+                                    font-weight: S.set-tab == i ? 600 : 400;
+                                }
+                            }
+                        }
+                        Rectangle {
+                            horizontal-stretch: 1;
+                        }
+                    }
+                    if S.dialog == 3 && S.set-tab == 0: VerticalLayout {
+                        spacing: 10px;
+                        Text {
+                            text: @tr("APPEARANCE");
+                            color: Theme.text-faint;
+                            font-size: 11px;
+                            font-weight: 600;
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            PillButton {
+                                text: @tr("Dark");
+                                primary: Theme.dark;
+                                clicked => { S.set-theme(true); }
+                            }
+                            PillButton {
+                                text: @tr("Light");
+                                primary: !Theme.dark;
+                                clicked => { S.set-theme(false); }
+                            }
+                            Rectangle {
+                                horizontal-stretch: 1;
+                            }
+                        }
+                        HorizontalLayout {
+                            spacing: 10px;
+                            alignment: start;
+                            height: 34px;
+                            for c[i] in S.accents: Rectangle {
+                                width: 28px;
+                                height: 28px;
+                                y: 3px;
+                                border-radius: 14px;
+                                background: c;
+                                border-width: i == S.accent-index ? 3px : 0px;
+                                border-color: Theme.text;
+                                TouchArea {
+                                    mouse-cursor: pointer;
+                                    clicked => { S.set-accent(i); }
+                                }
+                            }
+                        }
+                        Text {
+                            text: @tr("BEHAVIOUR");
+                            color: Theme.text-faint;
+                            font-size: 11px;
+                            font-weight: 600;
+                        }
+                        Toggle {
+                            text: @tr("Show hidden files");
+                            on: S.show-hidden;
+                            toggled => { S.toggle-setting("hidden"); }
+                        }
+                        Toggle {
+                            text: @tr("Show file extensions");
+                            on: S.set-show-ext;
+                            toggled => { S.toggle-setting("ext"); }
+                        }
+                        Toggle {
+                            text: @tr("Reopen my tabs on startup");
+                            on: S.set-restore;
+                            toggled => { S.toggle-setting("restore"); }
+                        }
+                        Toggle {
+                            text: @tr("Ask before deleting");
+                            on: S.set-confirm-delete;
+                            toggled => { S.toggle-setting("confirm"); }
+                        }
+                        Toggle {
+                            text: @tr("Friendly dates (Today, Yesterday…)");
+                            on: S.friendly-dates;
+                            toggled => { S.toggle-setting("friendly"); }
+                        }
+                        Text {
+                            text: @tr("ABOUT");
+                            color: Theme.text-faint;
+                            font-size: 11px;
+                            font-weight: 600;
+                        }
+                        HorizontalLayout {
+                            spacing: 12px;
+                            Image {
+                                source: Icons.logo;
+                                width: 40px;
+                                height: 40px;
+                            }
+                            VerticalLayout {
+                                alignment: center;
+                                Text {
+                                    text: "SKJ Files " + S.version;
+                                    font-weight: 600;
+                                    color: Theme.text;
+                                }
+                                Text {
+                                    text: @tr("SKJ Tech · icons: Lucide · font: Inter");
+                                    color: Theme.text-dim;
+                                    font-size: 12px;
+                                }
+                            }
+                        }
+                        Rectangle {
+                            height: 70px;
+                            AboutSlint {
+                                height: 70px;
+                            }
+                        }
+                    }
+                    if S.dialog == 3 && S.set-tab == 1: VerticalLayout {
+                        spacing: 2px;
+                        Text {
+                            text: @tr("Pick the buttons you want in the toolbar.");
+                            color: Theme.text-dim;
+                            font-size: 12px;
+                        }
+                        for r[i] in S.tb-rows: HorizontalLayout {
+                            spacing: 24px;
+                            if i * 2 < S.tb-rows.length: Toggle {
+                                height: 32px;
+                                horizontal-stretch: 1;
+                                text: S.tb-rows[i * 2].label;
+                                on: S.tb-rows[i * 2].checked;
+                                toggled => { S.cmd(S.tb-rows[i * 2].action); }
+                            }
+                            if i * 2 < S.tb-rows.length: Toggle {
+                                height: 32px;
+                                horizontal-stretch: 1;
+                                text: i * 2 + 1 < S.tb-rows.length ? S.tb-rows[i * 2 + 1].label : "";
+                                on: i * 2 + 1 < S.tb-rows.length ? S.tb-rows[i * 2 + 1].checked : false;
+                                toggled => { S.cmd(S.tb-rows[i * 2 + 1].action); }
+                            }
+                        }
+                    }
+                    if S.dialog == 3 && S.set-tab == 2: VerticalLayout {
+                        spacing: 8px;
+                        Text {
+                            text: S.capturing != "" ? @tr("Press the new keys for “{}” — Esc cancels, Backspace resets", S.capturing) : @tr("Click a shortcut to change it.");
+                            color: S.capturing != "" ? Theme.accent : Theme.text-dim;
+                            font-size: 12px;
+                            wrap: word-wrap;
+                        }
+                        Rectangle {
+                            height: 360px;
+                            ScrollView {
+                                VerticalLayout {
+                                    alignment: start;
+                                    for k in S.key-rows: Rectangle {
+                                        height: 34px;
+                                        border-radius: 8px;
+                                        background: kta.has-hover ? Theme.hover : transparent;
+                                        kta := TouchArea {
+                                            mouse-cursor: pointer;
+                                            clicked => { S.shortcut-capture(k.action); }
+                                        }
+                                        HorizontalLayout {
+                                            padding-left: 10px;
+                                            padding-right: 10px;
+                                            Text {
+                                                text: k.label;
+                                                vertical-alignment: center;
+                                                horizontal-stretch: 1;
+                                                color: Theme.text;
+                                            }
+                                            VerticalLayout {
+                                                alignment: center;
+                                                Rectangle {
+                                                    height: 24px;
+                                                    width: max(54px, kt.preferred-width + 18px);
+                                                    border-radius: 6px;
+                                                    background: k.checked ? Theme.accent.with-alpha(0.18) : Theme.raised;
+                                                    border-width: 1px;
+                                                    border-color: Theme.border;
+                                                    kt := Text {
+                                                        text: k.shortcut != "" ? k.shortcut : "—";
+                                                        font-size: 12px;
+                                                        font-family: S.mono-font;
+                                                        color: k.checked ? Theme.accent : Theme.text-dim;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        HorizontalLayout {
+                            alignment: start;
+                            PillButton {
+                                text: @tr("Reset all shortcuts");
+                                clicked => { S.cmd("shortcuts-reset"); }
+                            }
+                        }
+                    }
+                    if S.dialog == 3 && S.set-tab == 3: VerticalLayout {
+                        spacing: 10px;
+                        Text {
+                            text: @tr("LANGUAGE");
+                            color: Theme.text-faint;
+                            font-size: 11px;
+                            font-weight: 600;
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            PillButton {
+                                text: @tr("Automatic");
+                                primary: S.lang-setting != "en" && S.lang-setting != "pl";
+                                clicked => { S.cmd("lang:auto"); }
+                            }
+                            PillButton {
+                                text: "English";
+                                primary: S.lang-setting == "en";
+                                clicked => { S.cmd("lang:en"); }
+                            }
+                            PillButton {
+                                text: "Polski";
+                                primary: S.lang-setting == "pl";
+                                clicked => { S.cmd("lang:pl"); }
+                            }
+                            Rectangle {
+                                horizontal-stretch: 1;
+                            }
+                        }
+                        Text {
+                            text: @tr("Automatic follows your system language.");
+                            color: Theme.text-dim;
+                            font-size: 12px;
+                            wrap: word-wrap;
+                        }
+                        Rectangle {
+                            height: 6px;
+                        }
+                        Text {
+                            text: @tr("DEFAULT FILE MANAGER");
+                            color: Theme.text-faint;
+                            font-size: 11px;
+                            font-weight: 600;
+                        }
+                        if S.fm-supported: Toggle {
+                            text: @tr("Open folders with SKJ Files");
+                            on: S.is-default-fm;
+                            toggled => { S.cmd("default-fm"); }
+                        }
+                        Text {
+                            text: !S.fm-supported ? @tr("Your system doesn't let another app replace its file manager.")
+                                : S.on-windows ? @tr("Folders, drives and Win+E open in SKJ Files instead of File Explorer (only for you, nothing is uninstalled). It uses the app at: {} — if you move it, turn this on again.", S.exe-path)
+                                : @tr("Folders open in SKJ Files instead of your current file manager (only for you). It uses the app at: {} — if you move it, turn this on again.", S.exe-path);
+                            color: Theme.text-dim;
+                            font-size: 12px;
+                            wrap: word-wrap;
+                        }
+                    }
+                    HorizontalLayout {
+                        spacing: 8px;
+                        alignment: end;
+                        if S.dialog-aux != "": PillButton {
+                            text: S.dialog-aux;
+                            clicked => { S.dialog-aux-clicked(); }
+                        }
+                        if S.dialog-aux != "": Rectangle {
+                            horizontal-stretch: 1;
+                        }
+                        if S.dialog != 3 && S.dialog != 4 && S.dialog != 5: PillButton {
+                            text: @tr("Cancel");
+                            clicked => { S.dialog-cancel(); }
+                        }
+                        if S.dialog != 7: PillButton {
+                            text: S.dialog-ok-text;
+                            primary: !S.dialog-danger;
+                            danger: S.dialog-danger;
+                            clicked => { S.dialog-ok(S.dialog-text); }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // ── quick look ──
+    if S.ql: Rectangle {
+        background: #000000B0;
+        TouchArea {
+            clicked => { S.ql-close(); }
+        }
+        Rectangle {
+            x: root.width * 0.07;
+            y: root.height * 0.06;
+            width: root.width * 0.86;
+            height: root.height * 0.88;
+            border-radius: 16px;
+            background: Theme.menu-bg;
+            border-width: 1px;
+            border-color: Theme.border;
+            clip: true;
+            TouchArea { }
+            VerticalLayout {
+                HorizontalLayout {
+                    height: 56px;
+                    padding-left: 18px;
+                    padding-right: 10px;
+                    spacing: 12px;
+                    VerticalLayout {
+                        alignment: center;
+                        Icon {
+                            source: K.icon(S.ql-kind);
+                            tint: K.color(S.ql-kind);
+                            size: 20px;
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        horizontal-stretch: 1;
+                        Text {
+                            text: S.ql-title;
+                            font-size: 15px;
+                            font-weight: 600;
+                            color: Theme.text;
+                            overflow: elide;
+                        }
+                        Text {
+                            text: S.ql-sub;
+                            font-size: 12px;
+                            color: Theme.text-dim;
+                            overflow: elide;
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        ToolButton {
+                            icon: Icons.open;
+                            label: @tr("Open");
+                            clicked => { S.ql-close(); S.ql-open(); }
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        ToolButton {
+                            icon: Icons.x;
+                            tip: @tr("Close (Space / Esc)");
+                            clicked => { S.ql-close(); }
+                        }
+                    }
+                }
+                Rectangle {
+                    height: 1px;
+                    background: Theme.border;
+                }
+                Rectangle {
+                    vertical-stretch: 1;
+                    background: Theme.bg;
+                    if S.ql-has-image: Image {
+                        source: S.ql-image;
+                        image-fit: contain;
+                        width: parent.width - 32px;
+                        height: parent.height - 32px;
+                    }
+                    if S.ql-has-text: Text {
+                        x: 20px;
+                        y: 16px;
+                        width: parent.width - 40px;
+                        height: parent.height - 32px;
+                        text: S.ql-text;
+                        font-family: S.mono-font;
+                        font-size: 13px;
+                        color: Theme.text;
+                        vertical-alignment: top;
+                        overflow: elide;
+                    }
+                    if !S.ql-has-image && !S.ql-has-text: VerticalLayout {
+                        alignment: center;
+                        spacing: 12px;
+                        HorizontalLayout {
+                            alignment: center;
+                            Icon {
+                                source: K.icon(S.ql-kind);
+                                tint: K.color(S.ql-kind);
+                                size: 96px;
+                            }
+                        }
+                        Text {
+                            text: @tr("No preview for this type yet — press Enter to open it");
+                            horizontal-alignment: center;
+                            color: Theme.text-faint;
+                        }
+                    }
+                }
+                Text {
+                    height: 30px;
+                    text: @tr("← → previous / next   ·   Space or Esc to close");
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                    color: Theme.text-faint;
+                    font-size: 11px;
+                }
+            }
+        }
+    }
+
+    // ── command palette ──
+    if S.pal: Rectangle {
+        background: #00000070;
+        TouchArea {
+            clicked => { S.pal-close(); }
+        }
+        Rectangle {
+            x: (root.width - self.width) / 2;
+            y: 64px;
+            width: min(640px, root.width - 40px);
+            height: pal-layout.preferred-height;
+            border-radius: 14px;
+            background: Theme.menu-bg;
+            border-width: 1px;
+            border-color: Theme.border;
+            drop-shadow-blur: 30px;
+            drop-shadow-color: #00000080;
+            drop-shadow-offset-y: 8px;
+            clip: true;
+            TouchArea { }
+            FocusScope {
+                capture-key-pressed(e) => {
+                    if e.text == Key.Escape {
+                        S.pal-close();
+                        return accept;
+                    }
+                    if e.text == Key.DownArrow {
+                        S.pal-index = min(S.pal-index + 1, S.pal-rows.length - 1);
+                        return accept;
+                    }
+                    if e.text == Key.UpArrow {
+                        S.pal-index = max(S.pal-index - 1, 0);
+                        return accept;
+                    }
+                    if e.text == Key.Return {
+                        S.pal-run(S.pal-index);
+                        return accept;
+                    }
+                    return reject;
+                }
+                pal-layout := VerticalLayout {
+                    HorizontalLayout {
+                        height: 52px;
+                        padding-left: 16px;
+                        padding-right: 16px;
+                        spacing: 10px;
+                        VerticalLayout {
+                            alignment: center;
+                            Icon {
+                                source: Icons.command;
+                                tint: Theme.accent;
+                                size: 18px;
+                            }
+                        }
+                        Rectangle {
+                            horizontal-stretch: 1;
+                            pal-in := TextInput {
+                                width: parent.width;
+                                height: parent.height;
+                                vertical-alignment: center;
+                                font-size: 15px;
+                                color: Theme.text;
+                                single-line: true;
+                                selection-background-color: Theme.selection-strong;
+                                text <=> S.pal-query;
+                                init => { self.focus(); }
+                                edited => { S.pal-changed(self.text); }
+                            }
+                            if S.pal-query == "": Text {
+                                width: parent.width;
+                                height: parent.height;
+                                vertical-alignment: center;
+                                font-size: 15px;
+                                text: @tr("Type a command, a folder or a path…");
+                                color: Theme.text-faint;
+                            }
+                        }
+                    }
+                    Rectangle {
+                        height: 1px;
+                        background: Theme.border;
+                    }
+                    pal-list := ListView {
+                        height: min(S.pal-rows.length, 10) * 36px + 12px;
+                        for r[i] in S.pal-rows: Rectangle {
+                            height: 36px;
+                            property <bool> cur: i == S.pal-index;
+                            Rectangle {
+                                x: 6px;
+                                width: parent.width - 12px;
+                                border-radius: 8px;
+                                background: parent.cur ? Theme.selection : pta.has-hover ? Theme.hover : transparent;
+                            }
+                            pta := TouchArea {
+                                mouse-cursor: pointer;
+                                clicked => { S.pal-run(i); }
+                            }
+                            HorizontalLayout {
+                                padding-left: 18px;
+                                padding-right: 18px;
+                                spacing: 12px;
+                                VerticalLayout {
+                                    alignment: center;
+                                    Icon {
+                                        source: K.icon(r.icon);
+                                        tint: i == S.pal-index ? Theme.accent : K.color(r.icon);
+                                        size: 16px;
+                                    }
+                                }
+                                Text {
+                                    text: r.label;
+                                    vertical-alignment: center;
+                                    overflow: elide;
+                                    horizontal-stretch: 1;
+                                    color: Theme.text;
+                                }
+                                Text {
+                                    text: r.shortcut;
+                                    vertical-alignment: center;
+                                    overflow: elide;
+                                    max-width: 220px;
+                                    color: Theme.text-faint;
+                                    font-size: 12px;
+                                }
+                            }
+                        }
+                    }
+                    if S.pal-rows.length == 0: Text {
+                        height: 44px;
+                        text: @tr("Nothing matches");
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                        color: Theme.text-faint;
+                    }
+                }
+            }
+            // keep the highlighted row in view
+            property <int> pi: S.pal-index;
+            changed pi => {
+                if S.pal-index * 36px < -pal-list.content-y {
+                    pal-list.content-y = -(S.pal-index * 36px);
+                } else if (S.pal-index + 1) * 36px > -pal-list.content-y + pal-list.visible-height - 12px {
+                    pal-list.content-y = -((S.pal-index + 1) * 36px - pal-list.visible-height + 12px);
+                }
+            }
+        }
+    }
+
+    // ── tooltip ──
+    Timer {
+        interval: 550ms;
+        running: Tip.armed && !Tip.show;
+        triggered => { Tip.show = true; }
+    }
+    if Tip.show && Tip.armed: Rectangle {
+        x: clamp(Tip.x - self.width / 2, 6px, root.width - self.width - 6px);
+        y: Tip.y;
+        height: 28px;
+        width: tip-text.preferred-width + 20px;
+        border-radius: 7px;
+        background: Theme.dark ? #2A2D35 : #1F2229;
+        drop-shadow-blur: 10px;
+        drop-shadow-color: #00000050;
+        tip-text := Text {
+            text: Tip.text;
+            color: #F2F3F5;
+            font-size: 12px;
+        }
+    }
+
+    // ── context menu ──
+    menu-popup := PopupWindow {
+        x: max(4px, min(S.menu-x, root.width - 272px));
+        y: S.menu-y + S.menu-h > root.height - 8px ? max(4px, S.menu-y - S.menu-h) : S.menu-y;
+        width: 268px;
+        height: S.menu-h;
+        Rectangle {
+            background: Theme.menu-bg;
+            border-radius: 10px;
+            border-width: 1px;
+            border-color: Theme.border;
+            VerticalLayout {
+                padding: 5px;
+                alignment: start;
+                for m in S.menu: MenuRow {
+                    entry: m;
+                }
+            }
+        }
+    }
+}
