@@ -6,6 +6,7 @@ mod i18n;
 mod i18n_pl;
 mod app;
 mod fsx;
+mod crashlog;
 mod settings;
 mod sysint;
 mod thumbs;
@@ -20,6 +21,9 @@ use std::time::Instant;
 fn main() -> Result<(), slint::PlatformError> {
     let t0 = Instant::now();
     let timing = std::env::var("SKJ_TIMING").is_ok();
+
+    // a release build has no console, so a panic has to leave a file behind
+    crashlog::install();
 
     // lets the installer notice we are open rather than failing to overwrite a locked .exe
     sysint::claim_running_marker();

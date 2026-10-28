@@ -567,6 +567,15 @@ impl WinitWindowAdapter {
         !window_item.background().is_opaque() || window_item.no_frame()
     }
 
+    /// Windows: a DWM system backdrop (Mica / Acrylic) is drawn *behind* the window, so it only
+    /// shows where the client area is not opaque, and the window has to be created transparent
+    /// for it. Deliberately NOT keyed on no_frame as on macOS: a frameless window here is just
+    /// our own title bar, which has nothing to do with wanting a translucent background.
+    #[cfg(target_os = "windows")]
+    fn wants_transparent(window_item: core::pin::Pin<&corelib::items::WindowItem>) -> bool {
+        !window_item.background().is_opaque()
+    }
+
     pub fn ensure_window(
         &self,
         active_event_loop: &ActiveEventLoop,
@@ -614,10 +623,12 @@ impl WinitWindowAdapter {
             window_attributes = window_attributes.with_transparent(false);
         }
 
-        #[cfg(target_os = "macos")]
+        #[cfg(any(target_os = "macos", target_os = "windows"))]
         if let Some(window_item) = WindowInner::from_pub(self.window()).window_item() {
             let transparent = Self::wants_transparent(window_item.as_pin_ref());
             window_attributes = window_attributes.with_transparent(transparent);
+            // only macOS follows this afterwards; on Windows it is fixed at creation
+            #[cfg(target_os = "macos")]
             self.transparent.set(transparent);
         }
 

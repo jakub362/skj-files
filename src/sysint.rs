@@ -227,6 +227,34 @@ pub fn claim_running_marker() {
 #[cfg(not(windows))]
 pub fn claim_running_marker() {}
 
+/// Ask DWM to draw an Acrylic backdrop behind the window (Windows 11 22H2 and newer).
+///
+/// It is drawn *behind* the client area, so it only shows where we do not paint over it - which
+/// is why the window has to be created transparent and the UI background given some alpha.
+/// On Windows 10 and earlier the attribute is simply not supported and the call fails harmlessly,
+/// leaving an ordinary opaque window.
+#[cfg(windows)]
+pub fn set_acrylic(hwnd: isize, on: bool) -> bool {
+    use windows::Win32::Foundation::HWND;
+    use windows::Win32::Graphics::Dwm::{DwmSetWindowAttribute, DWMWA_SYSTEMBACKDROP_TYPE, DWM_SYSTEMBACKDROP_TYPE};
+    // 3 = DWMSBT_TRANSIENTWINDOW (Acrylic), 1 = DWMSBT_NONE
+    let kind = DWM_SYSTEMBACKDROP_TYPE(if on { 3 } else { 1 });
+    unsafe {
+        DwmSetWindowAttribute(
+            HWND(hwnd as *mut core::ffi::c_void),
+            DWMWA_SYSTEMBACKDROP_TYPE,
+            &kind as *const _ as *const core::ffi::c_void,
+            std::mem::size_of::<DWM_SYSTEMBACKDROP_TYPE>() as u32,
+        )
+        .is_ok()
+    }
+}
+
+#[cfg(not(windows))]
+pub fn set_acrylic(_hwnd: isize, _on: bool) -> bool {
+    false
+}
+
 /// Make SKJ Files the default file manager (`on`) or give the job back.
 pub fn set_default(on: bool, prev: &str) -> Result<(), String> {
     #[cfg(windows)]

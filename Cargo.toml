@@ -34,7 +34,7 @@ ureq = { version = "3.5.0", default-features = false, features = ["rustls", "gzi
 
 [target.'cfg(windows)'.dependencies]
 clipboard-win = "5"
-windows = { version = "0.62", features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_System_Com", "Win32_System_Ole", "Win32_System_Registry", "Win32_Storage_FileSystem", "Win32_UI_Shell", "Win32_UI_Shell_Common", "Win32_UI_WindowsAndMessaging", "Win32_System_SystemServices", "Win32_System_Threading"] }
+windows = { version = "0.62", features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_System_Com", "Win32_System_Ole", "Win32_System_Registry", "Win32_Storage_FileSystem", "Win32_UI_Shell", "Win32_UI_Shell_Common", "Win32_UI_WindowsAndMessaging", "Win32_System_SystemServices", "Win32_System_Threading", "Win32_Graphics_Dwm"] }
 
 [build-dependencies]
 slint-build = "1.18"

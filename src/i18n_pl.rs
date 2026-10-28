@@ -309,6 +309,8 @@ pub static PL: &[(&str, &str)] = &[
     ("Done — folders and Win+E now open in SKJ Files", "Gotowe — foldery i Win+E otwierają się teraz w SKJ Files"),
     ("Done — folders now open in SKJ Files", "Gotowe — foldery otwierają się teraz w SKJ Files"),
     ("Checking for updates…", "Sprawdzanie aktualizacji…"),
+    ("That is not a colour like #6C8CFF", "To nie jest kolor taki jak #6C8CFF"),
+    ("Restart SKJ Files to finish changing the window background", "Uruchom ponownie SKJ Files, aby dokończyć zmianę tła okna"),
     ("SKJ Files {} is out — see Settings to get it", "SKJ Files {} jest dostępny — zobacz Ustawienia, aby go pobrać"),
     ("You have the newest version ({})", "Masz najnowszą wersję ({})"),
     ("Folders open in File Explorer again", "Foldery znów otwierają się w Eksploratorze plików"),

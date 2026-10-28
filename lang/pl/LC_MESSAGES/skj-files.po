@@ -4,6 +4,9 @@ msgstr ""
 "Language: pl\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
+msgid "A colour like #6C8CFF. Leave it empty, or pick one of the circles above, to go back to the presets."
+msgstr "Kolor taki jak #6C8CFF. Zostaw puste lub wybierz jedno z kółek powyżej, aby wrócić do gotowych kolorów."
+
 msgid "ABOUT"
 msgstr "O PROGRAMIE"
 
@@ -28,11 +31,17 @@ msgstr "ZACHOWANIE"
 msgid "Back (Alt+←)"
 msgstr "Wstecz (Alt+←)"
 
+msgid "CUSTOM ACCENT"
+msgstr "WŁASNY KOLOR"
+
 msgid "Cancel"
 msgstr "Anuluj"
 
 msgid "Check now"
 msgstr "Sprawdź teraz"
+
+msgid "Clear"
+msgstr "Wyczyść"
 
 msgid "Click a shortcut to change it."
 msgstr "Kliknij skrót, żeby go zmienić."
@@ -46,8 +55,14 @@ msgstr "Kolumny"
 msgid "Combine them; same-name files are replaced (old ones go to the bin)"
 msgstr "Połącz je; pliki o tych samych nazwach zostaną zastąpione (stare trafią do kosza)"
 
+msgid "Comfortable"
+msgstr "Luźna"
+
 msgid "Command palette (Ctrl+Shift+P)"
 msgstr "Paleta poleceń (Ctrl+Shift+P)"
+
+msgid "Compact"
+msgstr "Zwarta"
 
 msgid "Compress to ZIP"
 msgstr "Kompresuj do ZIP"
@@ -66,6 +81,9 @@ msgstr "Wytnij (Ctrl+X)"
 
 msgid "DEFAULT FILE MANAGER (EXPERIMENTAL)"
 msgstr "DOMYŚLNY MENEDŻER PLIKÓW (EKSPERYMENTALNE)"
+
+msgid "DENSITY"
+msgstr "GĘSTOŚĆ"
 
 msgid "DRIVES"
 msgstr "DYSKI"
@@ -145,6 +163,9 @@ msgstr "Ukryj ukryte pliki (Ctrl+H)"
 msgid "Home"
 msgstr "Strona główna"
 
+msgid "How tall the rows in the file list are."
+msgstr "Jak wysokie są wiersze na liście plików."
+
 msgid "Keep both"
 msgstr "Zachowaj oba"
 
@@ -195,6 +216,9 @@ msgstr "Nowa karta (Ctrl+T)"
 
 msgid "No preview for this type yet — press Enter to open it"
 msgstr "Brak podglądu dla tego typu — naciśnij Enter, żeby otworzyć"
+
+msgid "Normal"
+msgstr "Normalna"
 
 msgid "Nothing here"
 msgstr "Nic tu nie ma"
@@ -349,6 +373,9 @@ msgstr "Pasek narzędzi"
 msgid "Tools"
 msgstr "Narzędzia"
 
+msgid "Translucent window background (Acrylic)"
+msgstr "Przeźroczyste tło okna (Acrylic)"
+
 msgid "Type"
 msgstr "Typ"
 
@@ -367,6 +394,9 @@ msgstr "Folder wyżej (Alt+↑)"
 msgid "Use SKJ Files' own title bar"
 msgstr "Używaj własnego paska tytułu SKJ Files"
 
+msgid "Use it"
+msgstr "Użyj"
+
 msgid "User name"
 msgstr "Nazwa użytkownika"
 
@@ -375,6 +405,9 @@ msgstr "Widok"
 
 msgid "WINDOW"
 msgstr "OKNO"
+
+msgid "Windows 11 only, and it takes effect when you restart SKJ Files — a window can only be made see-through when it is created."
+msgstr "Tylko Windows 11; zadziała po ponownym uruchomieniu SKJ Files — okno może stać się przeźroczyste tylko w chwili tworzenia."
 
 msgid "Your system doesn't let another app replace its file manager."
 msgstr "Twój system nie pozwala innej aplikacji zastąpić menedżera plików."

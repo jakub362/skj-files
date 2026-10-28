@@ -16,6 +16,17 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
 use std::time::{Duration, Instant};
 
+/// "#RRGGBB" or "RRGGBB" to its components. None for anything else, so a half-typed colour in
+/// the settings box simply does not take effect rather than throwing the theme away.
+pub fn parse_hex(s: &str) -> Option<(u8, u8, u8)> {
+    let h = s.trim().trim_start_matches('#');
+    if h.len() != 6 || !h.chars().all(|c| c.is_ascii_hexdigit()) {
+        return None;
+    }
+    let p = |i: usize| u8::from_str_radix(&h[i..i + 2], 16).ok();
+    Some((p(0)?, p(2)?, p(4)?))
+}
+
 pub const ACCENTS: [(u8, u8, u8); 7] = [
     (0x6C, 0x8C, 0xFF),
     (0x8B, 0x5C, 0xF6),
@@ -462,6 +473,7 @@ impl App {
         slint::Timer::single_shot(Duration::from_millis(1), || {
             with_app(|a| {
                 a.apply_titlebar();
+                a.apply_acrylic();
                 #[cfg(not(windows))]
                 a.hook_external_drops();
             })
@@ -512,7 +524,9 @@ impl App {
     fn apply_theme(&self) {
         let t = self.ui.global::<Theme>();
         t.set_dark(self.s.dark);
-        let (r, g, b) = ACCENTS[self.s.accent.min(ACCENTS.len() - 1)];
+        // a custom #RRGGBB wins over the preset; anything unparseable falls back to the preset
+        let custom = parse_hex(&self.s.accent_custom);
+        let (r, g, b) = custom.unwrap_or(ACCENTS[self.s.accent.min(ACCENTS.len() - 1)]);
         t.set_accent(Color::from_rgb_u8(r, g, b));
     }
 
@@ -523,6 +537,8 @@ impl App {
         g.set_set_restore(self.s.restore);
         g.set_set_confirm_delete(self.s.confirm_delete);
         g.set_accent_index(self.s.accent as i32);
+        g.set_density(self.s.density);
+        g.set_accent_custom(ss(&self.s.accent_custom));
         g.set_view_mode(self.s.view_mode);
         g.set_sort_key(self.s.sort_key);
         g.set_sort_asc(self.s.sort_asc);
@@ -536,6 +552,8 @@ impl App {
         g.set_is_default_fm(crate::sysint::is_default());
         g.set_exe_path(ss(std::env::current_exe().map(|p| p.display().to_string()).unwrap_or_default()));
         g.set_set_update_check(self.s.update_check);
+        g.set_custom_titlebar(self.s.custom_titlebar);
+        g.set_acrylic(self.s.acrylic);
     }
 
     fn toolbar_on(&self, id: &str) -> bool {
@@ -3805,7 +3823,29 @@ impl App {
 
     fn set_accent(&mut self, i: usize) {
         self.s.accent = i.min(ACCENTS.len() - 1);
+        // picking a preset means you no longer want the custom one
+        self.s.accent_custom.clear();
+        self.g().set_accent_custom(ss(""));
         self.g().set_accent_index(self.s.accent as i32);
+        self.apply_theme();
+        self.s.save();
+    }
+
+    fn set_density(&mut self, d: i32) {
+        self.s.density = d.clamp(0, 2);
+        self.g().set_density(self.s.density);
+        self.s.save();
+    }
+
+    /// `hex` is "#RRGGBB" (or empty to go back to the preset). Rejected silently if it is neither.
+    fn set_accent_custom(&mut self, hex: String) {
+        let h = hex.trim().to_string();
+        if !h.is_empty() && parse_hex(&h).is_none() {
+            self.toast(ts("That is not a colour like #6C8CFF"));
+            return;
+        }
+        self.s.accent_custom = h.clone();
+        self.g().set_accent_custom(ss(h));
         self.apply_theme();
         self.s.save();
     }
@@ -3834,6 +3874,14 @@ impl App {
             "titlebar" => {
                 self.s.custom_titlebar = !self.s.custom_titlebar;
                 self.apply_titlebar();
+            }
+            "acrylic" => {
+                self.s.acrylic = !self.s.acrylic;
+                self.g().set_acrylic(self.s.acrylic);
+                self.apply_acrylic();
+                // The window is created transparent or not; it cannot change afterwards, so the
+                // effect only really lands next time.
+                self.toast(ts("Restart SKJ Files to finish changing the window background"));
             }
             _ => {}
         }
@@ -3867,13 +3915,32 @@ impl App {
         let custom = self.s.custom_titlebar;
         self.ui.window().with_winit_window(|w| {
             w.set_theme(Some(if dark { winit::window::Theme::Dark } else { winit::window::Theme::Light }));
-            // The system bar goes away only when we draw our own, so the window never ends up
-            // with both or with neither.
-            w.set_decorations(!custom);
         });
+        // Setting the global is what removes the system bar: AppWindow binds no-frame to it, and
+        // the backend applies that itself. Calling winit's set_decorations here would be undone
+        // on the next property update (winitwindowadapter.rs: update_window_properties).
         let g = self.g();
         g.set_custom_titlebar(custom);
         g.set_window_maximized(self.window_maximized());
+    }
+
+    /// Ask DWM for the Acrylic backdrop. Returns nothing useful on Windows 10 or Linux/macOS,
+    /// where the attribute does not exist and the window just stays opaque.
+    pub fn apply_acrylic(&self) {
+        use slint::winit_030::WinitWindowAccessor;
+        let on = self.s.acrylic;
+        let ok = self
+            .ui
+            .window()
+            .with_winit_window(|w| {
+                use slint::winit_030::winit::raw_window_handle::{HasWindowHandle, RawWindowHandle};
+                match w.window_handle().map(|h| h.as_raw()) {
+                    Ok(RawWindowHandle::Win32(h)) => crate::sysint::set_acrylic(h.hwnd.get(), on),
+                    _ => false,
+                }
+            })
+            .unwrap_or(false);
+        self.g().set_acrylic_supported(ok || !on);
     }
 
     fn window_maximized(&self) -> bool {
@@ -5373,6 +5440,8 @@ pub fn wire(ui: &AppWindow) {
     g.on_set_theme(|d| with_app(move |a| a.set_theme(d)));
     g.on_set_accent(|i| with_app(move |a| a.set_accent(i as usize)));
     g.on_toggle_setting(|w| with_app(move |a| a.toggle_setting(&w)));
+    g.on_set_density(|d| with_app(move |a| a.set_density(d)));
+    g.on_set_accent_custom(|h| with_app(move |a| a.set_accent_custom(h.to_string())));
     g.on_win_drag(|| with_app(|a| a.win_drag()));
     g.on_win_minimize(|| with_app(|a| a.win_minimize()));
     g.on_win_maximize(|| with_app(|a| a.win_maximize()));

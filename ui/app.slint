@@ -402,6 +402,17 @@ export global S {
     in property <bool> set-update-check: true;
     /// SKJ Files draws its own title bar instead of the system one
     in property <bool> custom-titlebar: false;
+    /// Translucent window background (Windows 11 Acrylic). Needs a restart: the window can only
+    /// be created transparent, not turned transparent afterwards.
+    in property <bool> acrylic: false;
+    in property <bool> acrylic-supported: false;
+    /// 0 compact, 1 normal, 2 comfortable
+    in property <int> density: 1;
+    /// Row height for the file lists, driven by `density`
+    out property <length> row-height: root.density == 0 ? 24px : root.density == 2 ? 38px : 30px;
+    callback set-density(int);
+    callback set-accent-custom(string);
+    in property <string> accent-custom: "";
     in property <bool> window-maximized: false;
     callback win-drag();
     callback win-minimize();
@@ -1470,7 +1481,7 @@ component DetailsView inherits Rectangle {
     property <bool> c-type: !root.compact && S.col-type && root.avail - root.u2 >= S.col-w-type + 12px;
     property <length> u3: root.u2 + (root.c-type ? S.col-w-type + 12px : 0px);
     property <bool> c-created: !root.compact && S.col-created && !root.bin && root.avail - root.u3 >= S.col-w-created + 12px;
-    property <length> row-h: 30px;
+    property <length> row-h: S.row-height;
     property <int> ev: S.ensure-gen;
     changed ev => {
         if S.ensure-pane == root.pane {
@@ -2758,11 +2769,20 @@ component MenuRow inherits Rectangle {
 export component AppWindow inherits Window {
     title: S.window-title;
     icon: @image-url("icons/skj-logo.svg");
+    // Bound, not set from Rust: the winit backend re-applies decorations from this property on
+    // every property update, so calling set_decorations() directly gets overwritten a frame later.
+    no-frame: S.custom-titlebar;
+    // Without the system frame there are no resize borders, so the backend draws its own: it
+    // watches this many pixels at each edge, swaps the cursor and starts a resize drag. It only
+    // does that while the window is undecorated, so this is harmless with the system title bar.
+    resize-border-width: 6px;
     preferred-width: 1280px;
     preferred-height: 800px;
     min-width: 720px;
     min-height: 460px;
-    background: Theme.bg;
+    // Acrylic is drawn by DWM behind the window, so it only shows where we leave some alpha.
+    // An opaque background here would cover it completely.
+    background: S.acrylic ? Theme.bg.with-alpha(0.72) : Theme.bg;
     default-font-family: "Inter";
     default-font-size: 13px;
 
@@ -3750,6 +3770,70 @@ tip: @tr("Settings (Ctrl+,)");
                             }
                         }
                         Text {
+                            text: @tr("DENSITY");
+                            color: Theme.text-faint;
+                            font-size: 11px;
+                            font-weight: 600;
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            alignment: start;
+                            for d[i] in [@tr("Compact"), @tr("Normal"), @tr("Comfortable")]: PillButton {
+                                text: d;
+                                primary: i == S.density;
+                                clicked => { S.set-density(i); }
+                            }
+                        }
+                        Text {
+                            text: @tr("How tall the rows in the file list are.");
+                            color: Theme.text-dim;
+                            font-size: 12px;
+                            wrap: word-wrap;
+                        }
+                        Text {
+                            text: @tr("CUSTOM ACCENT");
+                            color: Theme.text-faint;
+                            font-size: 11px;
+                            font-weight: 600;
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            alignment: start;
+                            Rectangle {
+                                width: 150px;
+                                height: 32px;
+                                border-radius: 8px;
+                                background: Theme.raised;
+                                border-width: 1px;
+                                border-color: hexin.has-focus ? Theme.accent : Theme.border;
+                                hexin := TextInput {
+                                    text: S.accent-custom;
+                                    color: Theme.text;
+                                    font-size: 13px;
+                                    vertical-alignment: center;
+                                    horizontal-alignment: left;
+                                    single-line: true;
+                                    width: parent.width - 20px;
+                                    x: 10px;
+                                    accepted => { S.set-accent-custom(self.text); }
+                                }
+                            }
+                            PillButton {
+                                text: @tr("Use it");
+                                clicked => { S.set-accent-custom(hexin.text); }
+                            }
+                            if S.accent-custom != "": PillButton {
+                                text: @tr("Clear");
+                                clicked => { S.set-accent-custom(""); }
+                            }
+                        }
+                        Text {
+                            text: @tr("A colour like #6C8CFF. Leave it empty, or pick one of the circles above, to go back to the presets.");
+                            color: Theme.text-dim;
+                            font-size: 12px;
+                            wrap: word-wrap;
+                        }
+                        Text {
                             text: @tr("WINDOW");
                             color: Theme.text-faint;
                             font-size: 11px;
@@ -3762,6 +3846,17 @@ tip: @tr("Settings (Ctrl+,)");
                         }
                         Text {
                             text: @tr("The tab strip becomes the title bar, with the window buttons in it, so there is one bar instead of two. Turn it off to get the system title bar back.");
+                            color: Theme.text-dim;
+                            font-size: 12px;
+                            wrap: word-wrap;
+                        }
+                        if S.on-windows: Toggle {
+                            text: @tr("Translucent window background (Acrylic)");
+                            on: S.acrylic;
+                            toggled => { S.toggle-setting("acrylic"); }
+                        }
+                        if S.on-windows: Text {
+                            text: @tr("Windows 11 only, and it takes effect when you restart SKJ Files — a window can only be made see-through when it is created.");
                             color: Theme.text-dim;
                             font-size: 12px;
                             wrap: word-wrap;

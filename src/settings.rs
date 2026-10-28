@@ -41,6 +41,12 @@ pub struct Settings {
     pub prev_fm: String,
     /// Draw our own title bar instead of the system one
     pub custom_titlebar: bool,
+    /// Translucent (Acrylic) window background - Windows 11 only, needs a restart
+    pub acrylic: bool,
+    /// Row height: 0 compact, 1 normal, 2 comfortable
+    pub density: i32,
+    /// Custom accent as #RRGGBB; empty means use the `accent` preset
+    pub accent_custom: String,
     /// Ask GitHub once a day whether a newer release is out
     pub update_check: bool,
     /// Release tag the user has already been told about, so it is only reported once
@@ -80,6 +86,9 @@ impl Default for Settings {
             lang: "auto".into(),
             prev_fm: String::new(),
             custom_titlebar: false,
+            acrylic: false,
+            density: 1,
+            accent_custom: String::new(),
             update_check: true,
             update_seen: String::new(),
         }
@@ -141,6 +150,9 @@ impl Settings {
                 }
                 "lang" => s.lang = v.to_string(),
                 "titlebar" => s.custom_titlebar = b,
+                "acrylic" => s.acrylic = b,
+                "density" => s.density = v.parse().unwrap_or(1),
+                "accent_custom" => s.accent_custom = v.to_string(),
                 "update_check" => s.update_check = b,
                 "update_seen" => s.update_seen = v.to_string(),
                 "prev_fm" => s.prev_fm = v.to_string(),
@@ -193,7 +205,7 @@ impl Settings {
             out.push_str(&format!("shortcut={}|{}\n", a, c));
         }
         out.push_str(&format!("lang={}\nprev_fm={}\n", self.lang, self.prev_fm));
-        out.push_str(&format!("titlebar={}\n", self.custom_titlebar as u8));
+        out.push_str(&format!("titlebar={}\nacrylic={}\n", self.custom_titlebar as u8, self.acrylic as u8));
         out.push_str(&format!("update_check={}\nupdate_seen={}\n", self.update_check as u8, self.update_seen));
         for (p, m) in &self.tags {
             if *m != 0 {
