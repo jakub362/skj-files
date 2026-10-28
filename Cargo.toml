@@ -1,6 +1,6 @@
 [package]
 name = "skj-files"
-version = "0.4.0"
+version = "1.0.0"
 edition = "2021"
 description = "SKJ Files - a fast, good-looking file manager for Windows, Linux and macOS"
 authors = ["SKJ Tech"]

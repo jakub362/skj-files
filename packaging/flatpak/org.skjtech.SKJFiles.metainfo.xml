@@ -49,6 +49,15 @@
   <content_rating type="oars-1.1"/>
 
   <releases>
+    <release version="1.0.0" date="2026-10-28">
+      <description>
+        <p>
+          First stable release. Adds a duplicate finder, a disk usage view, your own
+          right-click commands, an update check, row density, a custom accent colour,
+          SKJ Files' own title bar, a translucent window on Windows 11, and a crash log.
+        </p>
+      </description>
+    </release>
     <release version="0.4.0" date="2026-10-28">
       <description>
         <p>

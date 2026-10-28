@@ -4,7 +4,8 @@ Fast, good-looking file manager for Windows, Linux and macOS. **Rust + Slint 1.1
 First app of the **SKJ App Pack** (SKJ Tech, owner: Jakub). Later the pack gets a hub app (SKJ Hub),
 and SKJ Archiver is merged into Files only after the whole pack is finished — not now.
 
-Current version: **0.4.0** (built and delivered for Windows x64, Linux x64, macOS universal).
+Current version: **1.0.0**. Releases are built by GitHub Actions from a `v*` tag, for Windows
+(installer + portable), Linux (binary + Flatpak) and macOS (universal .dmg).
 Earlier work (0.1–0.4) was done in a cloud session; this file carries what that session knew.
 
 ## How Jakub works (follow these)

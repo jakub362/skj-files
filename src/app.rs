@@ -203,6 +203,8 @@ pub enum Loc {
     Search { root: PathBuf, query: String },
     /// files with identical contents under `root`
     Duplicates { root: PathBuf },
+    /// what is using the space directly under `root`, biggest first
+    DiskUsage { root: PathBuf },
     Tag(u8),
     /// the Recycle Bin / Trash
     Bin,
@@ -793,7 +795,7 @@ impl App {
         let tab = Tab { id, panes: [first, Pane::new(Loc::Home)], dual: false, active: 0 };
         self.tabs.push(tab);
         let ti = self.tabs.len() - 1;
-        if let Loc::Dir(_) | Loc::Search { .. } | Loc::Duplicates { .. } | Loc::Bin = loc {
+        if let Loc::Dir(_) | Loc::Search { .. } | Loc::Duplicates { .. } | Loc::DiskUsage { .. } | Loc::Bin = loc {
             self.start_listing(ti, 0, true);
         }
         if activate {
@@ -860,7 +862,7 @@ impl App {
         let ti = self.cur;
         {
             let p = &mut self.tabs[ti].panes[pi];
-            if p.loc == loc && !matches!(loc, Loc::Search { .. } | Loc::Duplicates { .. }) {
+            if p.loc == loc && !matches!(loc, Loc::Search { .. } | Loc::Duplicates { .. } | Loc::DiskUsage { .. }) {
                 return;
             }
             if push_history {
@@ -926,7 +928,7 @@ impl App {
                     self.navigate(pi, Loc::Home, true);
                 }
             }
-            Loc::Search { root, .. } | Loc::Duplicates { root } => self.navigate(pi, Loc::Dir(root), true),
+            Loc::Search { root, .. } | Loc::Duplicates { root } | Loc::DiskUsage { root } => self.navigate(pi, Loc::Dir(root), true),
             Loc::Tag(_) | Loc::Bin => self.navigate(pi, Loc::Home, true),
             Loc::Home => {}
         }
@@ -1102,6 +1104,28 @@ impl App {
                     });
                     if cancel.load(Ordering::SeqCst) == g {
                         let _ = slint::invoke_from_event_loop(move || with_app(move |a| a.on_search_batch(tab_id, pi, gen, Vec::new(), 0, true)));
+                    }
+                });
+            }
+            // One batch rather than a stream: a folder's size is only meaningful once its whole
+            // tree has been measured, so there is nothing useful to show half way through.
+            Loc::DiskUsage { root } => {
+                let g = self.search_gen.fetch_add(1, Ordering::SeqCst) + 1;
+                let cancel = self.search_gen.clone();
+                let hidden = self.s.show_hidden;
+                {
+                    let p = &mut self.tabs[ti].panes[pi];
+                    p.entries.clear();
+                    p.searched = 0;
+                    p.search_done = false;
+                    p.loading = true;
+                }
+                std::thread::spawn(move || {
+                    let c2 = cancel.clone();
+                    let rows = fsx::disk_usage(&root, hidden, &move || c2.load(Ordering::SeqCst) != g);
+                    if cancel.load(Ordering::SeqCst) == g {
+                        let n = rows.len();
+                        let _ = slint::invoke_from_event_loop(move || with_app(move |a| a.on_search_batch(tab_id, pi, gen, rows, n, true)));
                     }
                 });
             }
@@ -1754,6 +1778,7 @@ impl App {
             Loc::Home => (ts("Home").into(), fsx::K_HOME),
             Loc::Search { query, .. } => (tf!("Search: {}", query), fsx::K_SEARCH),
             Loc::Duplicates { .. } => (ts("Duplicates").to_string(), fsx::K_SEARCH),
+            Loc::DiskUsage { .. } => (ts("Disk usage").to_string(), fsx::K_SEARCH),
             Loc::Tag(i) => (tf!("{} tag", ts(TAG_NAMES[*i as usize % 6])), 27),
             Loc::Bin => (capitalize(fsx::trash_word()), fsx::K_TRASH),
             Loc::Dir(p) => {
@@ -1810,7 +1835,7 @@ impl App {
         for pi in 0..2 {
             let p = &t.panes[pi];
             let home = p.loc == Loc::Home;
-            let search = matches!(p.loc, Loc::Search { .. } | Loc::Duplicates { .. } | Loc::Tag(_) | Loc::Bin);
+            let search = matches!(p.loc, Loc::Search { .. } | Loc::Duplicates { .. } | Loc::DiskUsage { .. } | Loc::Tag(_) | Loc::Bin);
             let empty = if let Some(e) = &p.error {
                 e.clone()
             } else if p.loc == Loc::Bin {
@@ -1829,6 +1854,7 @@ impl App {
                 Loc::Dir(d) => d.display().to_string(),
                 Loc::Search { root, query } => tf!("Search \"{}\" in {}", query, root.display()),
             Loc::Duplicates { root } => tf!("Duplicate files in {}", root.display()),
+            Loc::DiskUsage { root } => tf!("Disk usage in {}", root.display()),
                 Loc::Tag(i) => tf!("{} tag", ts(TAG_NAMES[*i as usize % 6])),
                 Loc::Bin => capitalize(fsx::trash_word()),
             };
@@ -1859,6 +1885,12 @@ impl App {
             Loc::Bin => (vec![capitalize(fsx::trash_word())], vec![], fsx::K_TRASH, String::new()),
             Loc::Search { root, query } => (
                 vec![fsx::file_name(root), tf!("Search results for \"{}\"", query)],
+                vec![root.clone(), root.clone()],
+                fsx::K_SEARCH,
+                root.display().to_string(),
+            ),
+            Loc::DiskUsage { root } => (
+                vec![fsx::file_name(root), ts("Disk usage").into()],
                 vec![root.clone(), root.clone()],
                 fsx::K_SEARCH,
                 root.display().to_string(),
@@ -1910,7 +1942,7 @@ impl App {
         g.set_side_active(ss(match &loc {
             Loc::Home => "::home".to_string(),
             Loc::Dir(d) => d.display().to_string(),
-            Loc::Search { .. } | Loc::Duplicates { .. } => String::new(),
+            Loc::Search { .. } | Loc::Duplicates { .. } | Loc::DiskUsage { .. } => String::new(),
             Loc::Tag(i) => format!("::tag:{}", i),
             Loc::Bin => "::bin".to_string(),
         }));
@@ -3408,10 +3440,19 @@ impl App {
             }
             "default-fm" => self.toggle_default_fm(),
             "check-updates" => self.check_updates(false),
+            "disk-usage" => {
+                let root = match &self.pane().loc {
+                    Loc::Dir(d) => d.clone(),
+                    Loc::Search { root, .. } | Loc::Duplicates { root } | Loc::DiskUsage { root } => root.clone(),
+                    _ => return,
+                };
+                let pi = self.tabs[self.cur].active;
+                self.navigate(pi, Loc::DiskUsage { root }, true);
+            }
             "find-dupes" => {
                 let root = match &self.pane().loc {
                     Loc::Dir(d) => d.clone(),
-                    Loc::Search { root, .. } | Loc::Duplicates { root } => root.clone(),
+                    Loc::Search { root, .. } | Loc::Duplicates { root } | Loc::DiskUsage { root } => root.clone(),
                     _ => return,
                 };
                 let pi = self.tabs[self.cur].active;
@@ -3695,7 +3736,7 @@ impl App {
         }
         let root = match &self.pane().loc {
             Loc::Dir(d) => d.clone(),
-            Loc::Search { root, .. } | Loc::Duplicates { root } => root.clone(),
+            Loc::Search { root, .. } | Loc::Duplicates { root } | Loc::DiskUsage { root } => root.clone(),
             Loc::Home | Loc::Tag(_) | Loc::Bin => match dirs::home_dir() {
                 Some(h) => h,
                 None => return,
@@ -3977,7 +4018,7 @@ impl App {
             .map(|t| match &t.panes[t.active].loc {
                 Loc::Home => "::home".to_string(),
                 Loc::Dir(d) => d.display().to_string(),
-                Loc::Search { root, .. } | Loc::Duplicates { root } => root.display().to_string(),
+                Loc::Search { root, .. } | Loc::Duplicates { root } | Loc::DiskUsage { root } => root.display().to_string(),
                 Loc::Tag(_) => "::home".to_string(),
                 Loc::Bin => "::home".to_string(),
             })
@@ -4758,6 +4799,7 @@ impl App {
             p("Search in this folder", 26, "focus-search"),
             p("Connect to server…", 28, "connect"),
             p("Find duplicate files", 20, "find-dupes"),
+            p("See what is using the space", 20, "disk-usage"),
             p("Settings", 46, "settings"),
             p("Keyboard shortcuts", 46, "settings-keys"),
             p("Customize the toolbar", 46, "settings-toolbar"),

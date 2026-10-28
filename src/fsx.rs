@@ -1974,3 +1974,35 @@ pub fn find_duplicates(
     }
     found(Vec::new(), scanned);
 }
+
+/// What is taking up the space directly under `root`: every immediate child with the full size of
+/// its tree, biggest first. The sizes come back in one batch because a folder is only useful once
+/// its whole tree has been measured.
+pub fn disk_usage(root: &Path, show_hidden: bool, cancel: &dyn Fn() -> bool) -> Vec<Entry> {
+    let Ok(rd) = fs::read_dir(root) else { return Vec::new() };
+    let loc = root.display().to_string();
+    let mut out: Vec<Entry> = Vec::new();
+    for de in rd.flatten() {
+        if cancel() {
+            return Vec::new();
+        }
+        let name = de.file_name().to_string_lossy().into_owned();
+        if !show_hidden && name.starts_with('.') {
+            continue;
+        }
+        let Ok(md) = de.metadata() else { continue };
+        let mut e = entry_from(de.path(), name, &md, loc.clone());
+        if !show_hidden && e.hidden {
+            continue;
+        }
+        if e.is_dir {
+            let (mut f, mut d, mut b) = (0u64, 0u64, 0u64);
+            tree_stats(&e.path, &mut f, &mut d, &mut b, cancel);
+            // the real weight of the folder, so it can be sorted against plain files
+            e.size = b;
+        }
+        out.push(e);
+    }
+    out.sort_by(|a, b| b.size.cmp(&a.size));
+    out
+}
